@@ -10,10 +10,8 @@ export class AuthService {
 		private readonly userRepo: Repository<User>,
 	) { }
 
-	async loginOrSignup(id: string, email: string | undefined) {
+	async login(id: string, email: string | undefined) {
 		let user = await this.userRepo.findOneBy({ id });
-
-		const isNewUser = !user;
 
 		if (!user) {
 			user = this.userRepo.create({ id, email });
@@ -22,7 +20,6 @@ export class AuthService {
 
 		return {
 			success: true,
-			message: isNewUser ? 'User registered successfully' : 'Login successful',
 			user,
 		};
 	}
