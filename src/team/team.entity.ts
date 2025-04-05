@@ -17,14 +17,14 @@ export class Team {
 	@Column()
 	name: string;
 
-	@ManyToOne(() => Org)
+	@ManyToOne(() => Org, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'organization_id' })
 	organization: Org;
 
 	@Column({ type: 'bigint' })
 	organization_id: number;
 
-	@ManyToOne(() => Chatroom, { nullable: true })
+	@ManyToOne(() => Chatroom, { nullable: true, onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'chatroom_id' })
 	chatroom: Chatroom;
 

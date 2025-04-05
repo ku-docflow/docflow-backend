@@ -22,14 +22,14 @@ export class Membership {
 	@Column({ type: 'varchar' })
 	user_id: string;
 
-	@ManyToOne(() => Org)
+	@ManyToOne(() => Org, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'organization_id' })
 	organization: Org;
 
 	@Column({ type: 'bigint' })
 	organization_id: number;
 
-	@ManyToOne(() => Team, { nullable: true })
+	@ManyToOne(() => Team, { nullable: true, onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'team_id' })
 	team: Team;
 
