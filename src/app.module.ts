@@ -5,6 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { OrgModule } from './org/org.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TeamModule } from './team/team.module';
+import { UserModule } from './user/user.module';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Module({
 	imports: [
@@ -21,6 +25,7 @@ import { TeamModule } from './team/team.module';
 		AuthModule,
 		OrgModule,
 		TeamModule,
+		UserModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

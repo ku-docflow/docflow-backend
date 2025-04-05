@@ -16,7 +16,6 @@ export class OrgController {
 	constructor(private readonly orgService: OrgService) { }
 
 	@Post()
-	@HttpCode(201)
 	create(@Body() dto: CreateOrgDto) {
 		return this.orgService.create(dto);
 	}

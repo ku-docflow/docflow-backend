@@ -1,25 +1,26 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+	Controller,
+	Post,
+	UseGuards,
+	Req,
+	Body,
+	HttpCode,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { SignupDto } from './dto/signup.dto';
-import { LogoutDto } from './dto/logout.dto';
+import { FirebaseAuthGuard } from 'src/common/guards/firebase-auth.guard';
+import { FirebaseRequest } from 'src/common/interfaces/firebase-request.interface';
 
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) { }
 
 	@Post('login')
-	login(@Body() dto: LoginDto) {
-		return this.authService.login(dto);
-	}
+	@UseGuards(FirebaseAuthGuard)
+	@HttpCode(200)
+	login(@Req() req: FirebaseRequest, @Body() dto: LoginDto) {
+		const { id, email } = req.user;
 
-	@Post('signup')
-	signup(@Body() dto: SignupDto) {
-		return this.authService.signup(dto);
-	}
-
-	@Post('logout')
-	logout(@Body() dto: LogoutDto) {
-		return this.authService.logout(dto);
+		return this.authService.loginOrSignup(id, email, dto.provider);
 	}
 }

@@ -1,27 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { LoginDto } from './dto/login.dto';
-import { SignupDto } from './dto/signup.dto';
-import { LogoutDto } from './dto/logout.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../user/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
-	login(dto: LoginDto) {
-		return {
-			success: true,
-			userId: 'user123',
-		};
-	}
+	constructor(
+		@InjectRepository(User)
+		private readonly userRepo: Repository<User>,
+	) { }
 
-	signup(dto: SignupDto) {
-		return {
-			success: true,
-			userId: 'user123',
-		};
-	}
+	async loginOrSignup(
+		firebase_uid: string,
+		email: string | undefined,
+		_provider: string,
+	) {
+		let user = await this.userRepo.findOneBy({ firebase_uid });
 
-	logout(dto: LogoutDto) {
+		const isNewUser = !user;
+
+		if (!user) {
+			user = this.userRepo.create({ firebase_uid, email });
+			user = await this.userRepo.save(user);
+		}
+
 		return {
 			success: true,
+			message: isNewUser ? 'User registered successfully' : 'Login successful',
+			user,
 		};
 	}
 }
