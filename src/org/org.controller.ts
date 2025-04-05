@@ -24,13 +24,11 @@ export class OrgController {
 	}
 
 	@Patch(':id')
-	@HttpCode(200)
 	edit(@Param('id') id: string, @Body() dto: EditOrgDto) {
 		return this.orgService.edit(Number(id), dto);
 	}
 
 	@Delete(':id')
-	@HttpCode(200)
 	delete(@Param('id') id: string) {
 		return this.orgService.delete(Number(id));
 	}

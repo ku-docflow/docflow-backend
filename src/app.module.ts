@@ -6,6 +6,9 @@ import { OrgModule } from './org/org.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TeamModule } from './team/team.module';
 import { UserModule } from './user/user.module';
+import { ChatroomService } from './chatroom/chatroom.service';
+import { ChatroomController } from './chatroom/chatroom.controller';
+import { ChatroomModule } from './chatroom/chatroom.module';
 
 @Module({
 	imports: [
@@ -23,8 +26,9 @@ import { UserModule } from './user/user.module';
 		OrgModule,
 		TeamModule,
 		UserModule,
+		ChatroomModule,
 	],
-	controllers: [AppController],
-	providers: [AppService],
+	controllers: [AppController, ChatroomController],
+	providers: [AppService, ChatroomService],
 })
 export class AppModule { }

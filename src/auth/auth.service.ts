@@ -10,11 +10,7 @@ export class AuthService {
 		private readonly userRepo: Repository<User>,
 	) { }
 
-	async loginOrSignup(
-		id: string,
-		email: string | undefined,
-		_provider: string,
-	) {
+	async loginOrSignup(id: string, email: string | undefined) {
 		let user = await this.userRepo.findOneBy({ id });
 
 		const isNewUser = !user;

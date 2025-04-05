@@ -1,3 +1,3 @@
 export class JoinTeamDto {
-	team_id: string;
+	team_id: number;
 }

@@ -10,7 +10,7 @@ export class Org {
 	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
 	id: number;
 
-	@Column()
+	@Column({ unique: true })
 	name: string;
 
 	@Column()

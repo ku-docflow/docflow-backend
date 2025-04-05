@@ -21,8 +21,7 @@ export class OrgService {
 
 		return {
 			success: true,
-			data: { org_id: saved.id },
-			message: 'Organization created successfully',
+			org_id: saved.id,
 		};
 	}
 
@@ -40,7 +39,6 @@ export class OrgService {
 
 		return {
 			success: true,
-			message: 'Organization updated successfully',
 		};
 	}
 
@@ -55,7 +53,6 @@ export class OrgService {
 
 		return {
 			success: true,
-			message: 'Organization deleted successfully',
 		};
 	}
 }
