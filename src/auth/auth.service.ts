@@ -11,16 +11,16 @@ export class AuthService {
 	) { }
 
 	async loginOrSignup(
-		firebase_uid: string,
+		id: string,
 		email: string | undefined,
 		_provider: string,
 	) {
-		let user = await this.userRepo.findOneBy({ firebase_uid });
+		let user = await this.userRepo.findOneBy({ id });
 
 		const isNewUser = !user;
 
 		if (!user) {
-			user = this.userRepo.create({ firebase_uid, email });
+			user = this.userRepo.create({ id, email });
 			user = await this.userRepo.save(user);
 		}
 

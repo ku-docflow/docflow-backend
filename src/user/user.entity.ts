@@ -1,19 +1,11 @@
-import {
-	Entity,
-	PrimaryGeneratedColumn,
-	Column,
-	CreateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('user')
 export class User {
-	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
-	id: number;
+	@PrimaryColumn({ type: 'varchar' })
+	id: string;
 
 	@Column({ unique: true })
-	firebase_uid: string;
-
-	@Column()
 	email: string;
 
 	@CreateDateColumn({ type: 'timestamp' })

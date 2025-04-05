@@ -27,6 +27,8 @@ export class OrgService {
 	}
 
 	async edit(id: number, dto: EditOrgDto) {
+		// check priviledges
+
 		const result = await this.orgRepo.update(id, {
 			name: dto.name,
 			email: dto.email,
@@ -43,6 +45,8 @@ export class OrgService {
 	}
 
 	async delete(id: number) {
+		// check priviledges
+
 		const result = await this.orgRepo.delete(id);
 
 		if (result.affected === 0) {
