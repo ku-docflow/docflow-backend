@@ -4,7 +4,7 @@ import { TeamService } from './team.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Team } from './team.entity';
 import { Membership } from './membership.entity';
-import { Chatroom } from 'src/chatroom/chatroom.entity';
+import { Chatroom } from '../chatroom/chatroom.entity';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([Team, Membership, Chatroom])],

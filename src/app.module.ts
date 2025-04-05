@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { OrgModule } from './org/org.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { OrgModule } from './modules/org/org.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TeamModule } from './team/team.module';
-import { UserModule } from './user/user.module';
-import { ChatroomService } from './chatroom/chatroom.service';
-import { ChatroomController } from './chatroom/chatroom.controller';
-import { ChatroomModule } from './chatroom/chatroom.module';
+import { TeamModule } from './modules/team/team.module';
+import { UserModule } from './modules/user/user.module';
+import { ChatroomService } from './modules/chatroom/chatroom.service';
+import { ChatroomController } from './modules/chatroom/chatroom.controller';
+import { ChatroomModule } from './modules/chatroom/chatroom.module';
 
 @Module({
 	imports: [
