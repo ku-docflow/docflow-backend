@@ -5,17 +5,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TeamModule } from './modules/team/team.module';
 import { ChatroomModule } from './modules/chatroom/chatroom.module';
 import dotenv from 'dotenv';
+import { envs } from './envs';
 dotenv.config();
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'docflow',
+      host: envs.DB_HOST,
+      port: envs.DB_PORT,
+      username: envs.DB_USER,
+      password: envs.DB_PASSWORD,
+      database: envs.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
     }),

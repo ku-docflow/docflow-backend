@@ -17,10 +17,10 @@ export class Chatroom {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: number;
 
-  @Column({ type: 'varchar' })
+  @Column()
   type: 'dm' | 'group';
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ nullable: true })
   name: string;
 
   @Column({ type: 'varchar', unique: true, nullable: true })
