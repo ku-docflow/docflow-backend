@@ -3,7 +3,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OrgModule } from './modules/org/org.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TeamModule } from './modules/team/team.module';
-import { UserModule } from './modules/user/user.module';
 import { ChatroomModule } from './modules/chatroom/chatroom.module';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -23,7 +22,6 @@ dotenv.config();
     AuthModule,
     OrgModule,
     TeamModule,
-    UserModule,
     ChatroomModule,
   ],
 })

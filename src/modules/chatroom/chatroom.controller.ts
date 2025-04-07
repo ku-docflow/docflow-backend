@@ -7,7 +7,7 @@ import { FirebaseAuthGuard } from 'src/common/guards/firebase-auth.guard';
 export class ChatroomController {
   constructor(private readonly chatroomService: ChatroomService) {}
 
-  @Get(':teamId/messages')
+  @Get('team/:teamId')
   async getGroupMessages(@Param('teamId') teamId: string) {
     return this.chatroomService.getMessagesByTeamId(Number(teamId));
   }

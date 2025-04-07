@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Chatroom } from './chatroom.entity';
-import { User } from '../user/user.entity';
+import { User } from '../auth/user.entity';
 
 @Entity('message')
 export class Message {
