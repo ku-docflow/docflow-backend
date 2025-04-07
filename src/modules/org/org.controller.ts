@@ -1,11 +1,11 @@
 import {
-	Controller,
-	Post,
-	Body,
-	Patch,
-	Param,
-	Delete,
-	UseGuards,
+  Controller,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { OrgService } from './org.service';
 import { CreateOrgDto } from './dto/create-org.dto';
@@ -15,20 +15,20 @@ import { FirebaseAuthGuard } from 'src/common/guards/firebase-auth.guard';
 @Controller('org')
 @UseGuards(FirebaseAuthGuard)
 export class OrgController {
-	constructor(private readonly orgService: OrgService) { }
+  constructor(private readonly orgService: OrgService) {}
 
-	@Post()
-	create(@Body() dto: CreateOrgDto) {
-		return this.orgService.create(dto);
-	}
+  @Post()
+  create(@Body() dto: CreateOrgDto) {
+    return this.orgService.create(dto);
+  }
 
-	@Patch(':id')
-	edit(@Param('id') id: string, @Body() dto: EditOrgDto) {
-		return this.orgService.edit(Number(id), dto);
-	}
+  @Patch(':id')
+  edit(@Param('id') id: string, @Body() dto: EditOrgDto) {
+    return this.orgService.edit(Number(id), dto);
+  }
 
-	@Delete(':id')
-	delete(@Param('id') id: string) {
-		return this.orgService.delete(Number(id));
-	}
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.orgService.delete(Number(id));
+  }
 }

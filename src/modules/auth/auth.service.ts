@@ -5,22 +5,22 @@ import { User } from '../user/user.entity';
 
 @Injectable()
 export class AuthService {
-	constructor(
-		@InjectRepository(User)
-		private readonly userRepo: Repository<User>,
-	) { }
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+  ) {}
 
-	async login(id: string, email: string | undefined) {
-		let user = await this.userRepo.findOneBy({ id });
+  async login(id: string, email: string | undefined, name: string) {
+    let user = await this.userRepo.findOneBy({ id });
 
-		if (!user) {
-			user = this.userRepo.create({ id, email });
-			user = await this.userRepo.save(user);
-		}
+    if (!user) {
+      user = this.userRepo.create({ id, email, name });
+      user = await this.userRepo.save(user);
+    }
 
-		return {
-			success: true,
-			user,
-		};
-	}
+    return {
+      success: true,
+      user,
+    };
+  }
 }
