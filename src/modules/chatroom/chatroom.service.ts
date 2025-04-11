@@ -26,12 +26,23 @@ export class ChatroomService {
 
     const messages = await this.messageRepo.find({
       where: { chatroom_id: chatroom.id },
+      relations: ['sender'],
       order: { timestamp: 'ASC' },
     });
 
     return {
-      chatroom_id: chatroom.id,
-      messages,
+      chatroom_id: chatroom.id.toString(),
+      messages: messages.map((msg) => ({
+        id: msg.id.toString(),
+        text: msg.text,
+        chatroom_id: msg.chatroom_id.toString(),
+        timestamp: msg.timestamp.toISOString(),
+        sender: {
+          id: msg.sender.id,
+          name: msg.sender.name,
+          profile_image: '', // TODO: Profile image
+        },
+      })),
     };
   }
 
@@ -63,11 +74,22 @@ export class ChatroomService {
     const messages = await this.messageRepo.find({
       where: { chatroom_id: chatroom.id },
       order: { timestamp: 'ASC' },
+      relations: ['sender'],
     });
 
     return {
-      chat_room_id: chatroom.id,
-      messages,
+      chatroom_id: chatroom.id.toString(),
+      messages: messages.map((msg) => ({
+        id: msg.id.toString(),
+        text: msg.text,
+        chatroom_id: msg.chatroom_id.toString(),
+        timestamp: msg.timestamp.toISOString(),
+        sender: {
+          id: msg.sender.id,
+          name: msg.sender.name,
+          profile_image: '', // TODO: Profile image
+        },
+      })),
     };
   }
 }

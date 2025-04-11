@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Org } from 'src/modules/org/org.entity';
 import { Team } from './team.entity';
-import { User } from '../auth/user.entity';
+import { User } from '../user/user.entity';
 
 @Entity('membership')
 export class Membership {
