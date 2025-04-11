@@ -2,9 +2,10 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { Team } from './team.entity';
 import { Chatroom } from '../chatroom/chatroom.entity';
 import { CreateTeamDto } from './dto/create-team.dto';
@@ -25,41 +26,51 @@ export class TeamService {
   ) {}
 
   async create(dto: CreateTeamDto, user_id: string) {
-    return await this.dataSource.transaction(async (manager) => {
-      const team = manager.getRepository(Team).create({
-        name: dto.name,
-        organization_id: dto.organizationId,
-      });
-      const savedTeam = await manager.getRepository(Team).save(team);
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const teamRepo = manager.getRepository(Team);
+        const team = teamRepo.create({
+          name: dto.name,
+          organization_id: dto.organizationId,
+        });
+        const savedTeam = await teamRepo.save(team);
 
-      const chatroom = manager.getRepository(Chatroom).create({
-        type: 'group',
-        name: dto.name,
-        team_id: savedTeam.id,
-      });
-      const savedChatroom = await manager
-        .getRepository(Chatroom)
-        .save(chatroom);
+        const chatroomRepo = manager.getRepository(Chatroom);
+        const chatroom = chatroomRepo.create({
+          type: 'group',
+          name: dto.name,
+          team_id: savedTeam.id,
+        });
+        const savedChatroom = await chatroomRepo.save(chatroom);
 
-      const membership = manager.getRepository(Membership).create({
-        user_id,
-        organization_id: dto.organizationId,
-        team_id: savedTeam.id,
-        role: 'admin',
-      });
-      await manager.getRepository(Membership).save(membership);
+        savedTeam.chatroom_id = savedChatroom.id;
+        await teamRepo.save(savedTeam);
 
-      const participant = manager.getRepository(ChatroomParticipant).create({
-        user_id,
-        chatroom_id: savedChatroom.id,
-      });
-      await manager.getRepository(ChatroomParticipant).save(participant);
+        const membership = manager.getRepository(Membership).create({
+          user_id,
+          organization_id: dto.organizationId,
+          team_id: savedTeam.id,
+          role: 'admin',
+        });
+        await manager.getRepository(Membership).save(membership);
 
-      return {
-        success: true,
-        team_id: savedTeam.id,
-      };
-    });
+        const participant = manager.getRepository(ChatroomParticipant).create({
+          user_id,
+          chatroom_id: savedChatroom.id,
+        });
+        await manager.getRepository(ChatroomParticipant).save(participant);
+
+        return {
+          success: true,
+          team_id: savedTeam.id,
+        };
+      });
+    } catch (err) {
+      if (err instanceof QueryFailedError && (err as any).code === '23503') {
+        throw new BadRequestException('Organization not found.');
+      }
+      throw err;
+    }
   }
 
   async join(dto: JoinTeamDto, user_id: string) {

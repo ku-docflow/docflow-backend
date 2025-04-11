@@ -7,6 +7,7 @@ import { ChatroomModule } from './modules/chatroom/chatroom.module';
 import dotenv from 'dotenv';
 import { envs } from './envs';
 import { UserModule } from './modules/user/user.module';
+import { ChatModule } from './modules/chat/chat.module';
 dotenv.config();
 
 @Module({
@@ -26,6 +27,7 @@ dotenv.config();
     TeamModule,
     ChatroomModule,
     UserModule,
+    ChatModule,
   ],
 })
 export class AppModule {}
