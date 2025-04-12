@@ -1,13 +1,16 @@
-import { Module } from '@nestjs/common';
-import { AuthModule } from './modules/auth/auth.module';
-import { OrgModule } from './modules/org/org.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TeamModule } from './modules/team/team.module';
-import { ChatroomModule } from './modules/chatroom/chatroom.module';
+import {Module} from '@nestjs/common';
+import {AuthModule} from './modules/auth/auth.module';
+import {OrgModule} from './modules/org/org.module';
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {TeamModule} from './modules/team/team.module';
+import {ChatroomModule} from './modules/chatroom/chatroom.module';
 import dotenv from 'dotenv';
-import { envs } from './envs';
-import { UserModule } from './modules/user/user.module';
-import { ChatModule } from './modules/chat/chat.module';
+import {envs} from './envs';
+import {UserModule} from './modules/user/user.module';
+import {ChatModule} from './modules/chat/chat.module';
+import { QuestionModule } from './modules/question/question.module';
+import { AIModule } from './modules/AI/AI.module';
+
 dotenv.config();
 
 @Module({
@@ -28,6 +31,8 @@ dotenv.config();
     ChatroomModule,
     UserModule,
     ChatModule,
+    QuestionModule,
+    AIModule,
   ],
 })
 export class AppModule {}
