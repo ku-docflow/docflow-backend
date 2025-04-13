@@ -10,6 +10,7 @@ import {UserModule} from './modules/user/user.module';
 import {ChatModule} from './modules/chat/chat.module';
 import { QuestionModule } from './modules/question/question.module';
 import { AIModule } from './modules/AI/AI.module';
+import { QdrantModule } from './modules/qdrant/qdrant.module';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ dotenv.config();
     ChatModule,
     QuestionModule,
     AIModule,
+    QdrantModule,
   ],
 })
 export class AppModule {}
