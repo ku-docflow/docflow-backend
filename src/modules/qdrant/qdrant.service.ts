@@ -1,21 +1,8 @@
 // src/modules/qdrant/qdrant.service.ts
 import {Injectable, OnModuleInit} from '@nestjs/common';
 import {QdrantClient} from '@qdrant/js-client-rest';
+import {QdrantQueryPoint, QdrantSearchParams} from "./qdrant.interface";
 
-interface QdrantFilter {
-    must: Array<{
-        key: string;
-        match: {
-            value: string;
-        };
-    }>;
-}
-
-export interface QdrantSearchParams {
-    orgId: number;
-    points: number[];
-    limit?: number;
-}
 
 export const collectionName = 'documents';
 
@@ -41,20 +28,42 @@ export class QdrantService implements OnModuleInit {
         } else {
             console.log(`[Qdrant] Collection already exists: ${collectionName}`);
         }
+        // 인덱싱 해야 Sparse Search 가능 ( production에서는 한번만 )
+        await this.client.createPayloadIndex('documents', {
+            field_name: 'keywords',
+            field_schema: 'text',
+        });
     }
 
-    async get(params: QdrantSearchParams) {
-        return this.client.query(collectionName, {
-            query: params.points,
-            limit: params.limit,
-            filter: {
-                must: [{
-                    key: 'orgId',
-                    match: {
-                        value: params.orgId
-                    }
-                }]
-            }
+    async getHybridSearch(params: QdrantSearchParams): Promise<QdrantQueryPoint> {
+        const orgFilter = {
+            must: [
+                {
+                    key: "orgId",
+                    match: {value: params.orgId},
+                },
+            ],
+        }
+        return this.client.query("documents", {
+            prefetch: [
+                {
+                    query: params.denseVector,
+                    using: "dense",
+                    filter: orgFilter,
+                    limit: 20,
+                },
+                {
+                    query: params.queryText, // 예: "recommendation system"
+                    using: "sparse",
+                    filter: orgFilter,
+                    limit: 20,
+                },
+            ],
+            query: {
+                fusion: "dbsf", // 또는 "rrf"
+            },
+            limit: 3,
+            with_payload: true,
         });
     }
 
