@@ -4,30 +4,57 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Org } from './org.entity';
 import { CreateOrgDto } from './dto/create-org.dto';
 import { EditOrgDto } from './dto/edit-org.dto';
+import { Team } from '../team/team.entity';
+import { Membership } from '../team/membership.entity';
+import { Chatroom } from '../chatroom/chatroom.entity';
 
 @Injectable()
 export class OrgService {
   constructor(
     @InjectRepository(Org)
     private readonly orgRepo: Repository<Org>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
-  async create(dto: CreateOrgDto) {
-    const org = this.orgRepo.create({
-      name: dto.name,
-      email: dto.email,
-    });
-
+  async create(dto: CreateOrgDto, id: string) {
     try {
-      const saved = await this.orgRepo.save(org);
-      return {
-        success: true,
-        org_id: saved.id,
-      };
+      const result = await this.dataSource.transaction(async (manager) => {
+        const org = manager.create(Org, {
+          name: dto.name,
+          email: dto.email,
+        });
+        const savedOrg = await manager.save(org);
+
+        const chatroom = manager.create(Chatroom, { type: 'group' });
+        const savedChatroom = await manager.save(chatroom);
+
+        const team = manager.create(Team, {
+          name: '공지방',
+          organization_id: savedOrg.id,
+          chatroom_id: savedChatroom.id,
+        });
+        const savedTeam = await manager.save(team);
+
+        const membership = manager.create(Membership, {
+          user_id: id,
+          team_id: savedTeam.id,
+          organization_id: savedOrg.id,
+          role: 'admin',
+        });
+        await manager.save(membership);
+
+        return {
+          success: true,
+          org_id: savedOrg.id,
+        };
+      });
+
+      return result;
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException('Organization name already exists.');
@@ -37,8 +64,6 @@ export class OrgService {
   }
 
   async edit(id: number, dto: EditOrgDto) {
-    // check priviledges
-
     const result = await this.orgRepo.update(id, {
       name: dto.name,
       email: dto.email,
@@ -48,22 +73,16 @@ export class OrgService {
       throw new NotFoundException('Organization not found');
     }
 
-    return {
-      success: true,
-    };
+    return { success: true };
   }
 
   async delete(id: number) {
-    // check priviledges
-
     const result = await this.orgRepo.delete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException('Organization not found');
     }
 
-    return {
-      success: true,
-    };
+    return { success: true };
   }
 }
