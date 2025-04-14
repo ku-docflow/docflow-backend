@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
+
 export const envs: DocflowEnv = {
   DB_HOST: process.env['DB_HOST'],
   DB_USER: process.env['DB_USER'],
