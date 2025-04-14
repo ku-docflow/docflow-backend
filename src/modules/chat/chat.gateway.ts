@@ -1,13 +1,7 @@
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  MessageBody,
-  WebSocketServer,
-  WsException,
-} from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { ChatService } from './chat.service';
-import { QueryFailedError } from 'typeorm';
+import {MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException,} from '@nestjs/websockets';
+import {Server, Socket} from 'socket.io';
+import {ChatService} from './chat.service';
+import {QueryFailedError} from 'typeorm';
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway {
