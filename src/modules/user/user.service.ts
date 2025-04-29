@@ -74,7 +74,7 @@ export class UserService {
 					return {
 						id: org.id.toString(),
 						name: org.name,
-						email: org.email,
+						admins: org.admins,
 						teams: teamData,
 					};
 				}),

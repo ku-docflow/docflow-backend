@@ -1,21 +1,21 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
+	Entity,
+	PrimaryGeneratedColumn,
+	Column,
+	CreateDateColumn,
 } from 'typeorm';
 
 @Entity('organization')
 export class Org {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: number;
+	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
+	id: number;
 
-  @Column({ unique: true })
-  name: string;
+	@Column({ unique: true })
+	name: string;
 
-  @Column()
-  email: string;
+	@Column('text', { array: true })
+	admins: string[];
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+	@CreateDateColumn({ type: 'timestamp' })
+	created_at: Date;
 }

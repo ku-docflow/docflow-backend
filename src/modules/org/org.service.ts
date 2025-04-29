@@ -27,7 +27,7 @@ export class OrgService {
 			const result = await this.dataSource.transaction(async (manager) => {
 				const org = manager.create(Org, {
 					name: dto.name,
-					email: dto.email,
+					admins: [id],
 				});
 				const savedOrg = await manager.save(org);
 
@@ -74,9 +74,10 @@ export class OrgService {
 	}
 
 	async edit(id: number, dto: EditOrgDto) {
+		// TODO: Replace with add / remove admin
 		const result = await this.orgRepo.update(id, {
 			name: dto.name,
-			email: dto.email,
+			admins: [],
 		});
 
 		if (result.affected === 0) {
