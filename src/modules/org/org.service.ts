@@ -1,7 +1,7 @@
 import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
+	ConflictException,
+	Injectable,
+	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -11,78 +11,88 @@ import { EditOrgDto } from './dto/edit-org.dto';
 import { Team } from '../team/team.entity';
 import { Membership } from '../team/membership.entity';
 import { Chatroom } from '../chatroom/chatroom.entity';
+import { ChatroomParticipant } from '../chatroom/chatroom-participant.entity';
 
 @Injectable()
 export class OrgService {
-  constructor(
-    @InjectRepository(Org)
-    private readonly orgRepo: Repository<Org>,
+	constructor(
+		@InjectRepository(Org)
+		private readonly orgRepo: Repository<Org>,
 
-    private readonly dataSource: DataSource,
-  ) {}
+		private readonly dataSource: DataSource,
+	) { }
 
-  async create(dto: CreateOrgDto, id: string) {
-    try {
-      const result = await this.dataSource.transaction(async (manager) => {
-        const org = manager.create(Org, {
-          name: dto.name,
-          email: dto.email,
-        });
-        const savedOrg = await manager.save(org);
+	async create(dto: CreateOrgDto, id: string) {
+		try {
+			const result = await this.dataSource.transaction(async (manager) => {
+				const org = manager.create(Org, {
+					name: dto.name,
+					email: dto.email,
+				});
+				const savedOrg = await manager.save(org);
 
-        const chatroom = manager.create(Chatroom, { type: 'group' });
-        const savedChatroom = await manager.save(chatroom);
+				const chatroom = manager.create(Chatroom, { type: 'group' });
+				const savedChatroom = await manager.save(chatroom);
 
-        const team = manager.create(Team, {
-          name: '공지방',
-          organization_id: savedOrg.id,
-          chatroom_id: savedChatroom.id,
-        });
-        const savedTeam = await manager.save(team);
+				const team = manager.create(Team, {
+					name: '공지방',
+					organization_id: savedOrg.id,
+					chatroom_id: savedChatroom.id,
+				});
+				const savedTeam = await manager.save(team);
 
-        const membership = manager.create(Membership, {
-          user_id: id,
-          team_id: savedTeam.id,
-          organization_id: savedOrg.id,
-          role: 'admin',
-        });
-        await manager.save(membership);
+				savedChatroom.team_id = savedTeam.id;
+				await manager.save(savedChatroom);
 
-        return {
-          success: true,
-          org_id: savedOrg.id,
-        };
-      });
+				const membership = manager.create(Membership, {
+					user_id: id,
+					team_id: savedTeam.id,
+					organization_id: savedOrg.id,
+					role: 'admin',
+				});
+				await manager.save(membership);
 
-      return result;
-    } catch (error) {
-      if (error.code === '23505') {
-        throw new ConflictException('Organization name already exists.');
-      }
-      throw error;
-    }
-  }
+				const participant = manager.create(ChatroomParticipant, {
+					user_id: id,
+					chatroom_id: savedChatroom.id,
+				});
+				await manager.save(participant);
 
-  async edit(id: number, dto: EditOrgDto) {
-    const result = await this.orgRepo.update(id, {
-      name: dto.name,
-      email: dto.email,
-    });
+				return {
+					success: true,
+					org_id: savedOrg.id,
+				};
+			});
 
-    if (result.affected === 0) {
-      throw new NotFoundException('Organization not found');
-    }
+			return result;
+		} catch (error) {
+			if (error.code === '23505') {
+				throw new ConflictException('Organization name already exists.');
+			}
+			throw error;
+		}
+	}
 
-    return { success: true };
-  }
+	async edit(id: number, dto: EditOrgDto) {
+		const result = await this.orgRepo.update(id, {
+			name: dto.name,
+			email: dto.email,
+		});
 
-  async delete(id: number) {
-    const result = await this.orgRepo.delete(id);
+		if (result.affected === 0) {
+			throw new NotFoundException('Organization not found');
+		}
 
-    if (result.affected === 0) {
-      throw new NotFoundException('Organization not found');
-    }
+		return { success: true };
+	}
 
-    return { success: true };
-  }
+	async delete(id: number) {
+		const result = await this.orgRepo.delete(id);
+
+		if (result.affected === 0) {
+			throw new NotFoundException('Organization not found');
+		}
+
+		return { success: true };
+	}
 }

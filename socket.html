@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket Chat Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    input, button { margin: 0.5rem 0; display: block; width: 300px; }
+    pre { background: #f0f0f0; padding: 1rem; height: 200px; overflow-y: scroll; }
+  </style>
+</head>
+<body>
+  <h1>WebSocket Chat Test</h1>
+
+  <label>user_id (for connect only)</label>
+  <input type="text" id="user_id" placeholder="e.g. abc123" />
+  <button id="connect">Connect</button>
+
+  <hr />
+
+  <label>chatroom_id</label>
+  <input type="number" id="chatroom_id" placeholder="e.g. 1" />
+
+  <label>message text</label>
+  <input type="text" id="text" placeholder="Type a message..." />
+  <button id="send">Send Message</button>
+
+  <h3>Received Messages:</h3>
+  <pre id="log"></pre>
+
+  <script>
+    let socket;
+    let currentUserId = null;
+
+    document.getElementById('connect').onclick = () => {
+      const userId = document.getElementById('user_id').value.trim();
+      if (!userId) return alert('Please enter user_id');
+
+      currentUserId = userId;
+
+      socket = io('http://localhost:4000', {
+        query: { user_id: userId },
+      });
+
+      socket.on('connect', () => {
+        log(`✅ Connected as ${userId}`);
+      });
+
+      socket.on('receive_message', (msg) => {
+        log(`📩 ${msg.sender_id}: ${msg.text}`);
+      });
+
+      socket.on('disconnect', () => {
+        log(`❌ Disconnected`);
+      });
+
+      socket.on('connect_error', (err) => {
+        log(`❗ Connection error: ${err.message}`);
+      });
+    };
+
+    document.getElementById('send').onclick = () => {
+      const chatroomId = Number(document.getElementById('chatroom_id').value);
+      const text = document.getElementById('text').value.trim();
+
+      if (!socket || !socket.connected) {
+        return alert('Socket not connected!');
+      }
+
+      if (!chatroomId || !text) {
+        return alert('chatroom_id and message text are required');
+      }
+
+      socket.emit('send_message', {
+        chatroom_id: chatroomId,
+        sender_id: currentUserId,
+        text: text,
+      });
+
+      log(`📤 Sent: ${text}`);
+    };
+
+    function log(msg) {
+      const logArea = document.getElementById('log');
+      logArea.textContent += msg + '\n';
+      logArea.scrollTop = logArea.scrollHeight;
+    }
+  </script>
+</body>
+</html>

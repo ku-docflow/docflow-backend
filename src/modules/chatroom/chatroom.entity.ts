@@ -1,12 +1,12 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  Check,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
+	Entity,
+	PrimaryGeneratedColumn,
+	Column,
+	CreateDateColumn,
+	Check,
+	OneToMany,
+	ManyToOne,
+	JoinColumn,
 } from 'typeorm';
 import { ChatroomParticipant } from './chatroom-participant.entity';
 import { Team } from '../team/team.entity';
@@ -14,28 +14,28 @@ import { Team } from '../team/team.entity';
 @Entity('chatroom')
 @Check(`"type" IN ('dm', 'group')`)
 export class Chatroom {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: number;
+	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
+	id: number;
 
-  @Column()
-  type: 'dm' | 'group';
+	@Column()
+	type: 'dm' | 'group';
 
-  @Column({ nullable: true })
-  name: string;
+	@Column({ nullable: true })
+	name: string;
 
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  dm_key: string;
+	@Column({ type: 'varchar', unique: true, nullable: true })
+	dm_key: string;
 
-  @OneToMany(() => ChatroomParticipant, (p) => p.chatroom)
-  participants: ChatroomParticipant[];
+	@OneToMany(() => ChatroomParticipant, (p) => p.chatroom)
+	participants: ChatroomParticipant[];
 
-  @ManyToOne(() => Team, { nullable: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'team_id' })
-  team: Team;
+	@ManyToOne(() => Team, { nullable: true, onDelete: 'CASCADE' })
+	@JoinColumn({ name: 'team_id' })
+	team: Team;
 
-  @Column({ type: 'bigint', nullable: true })
-  team_id: number;
+	@Column({ type: 'bigint', nullable: true })
+	team_id: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+	@CreateDateColumn({ type: 'timestamp' })
+	created_at: Date;
 }

@@ -7,89 +7,89 @@ import { ChatroomParticipant } from './chatroom-participant.entity';
 
 @Injectable()
 export class ChatroomService {
-  constructor(
-    @InjectRepository(Chatroom)
-    private chatroomRepo: Repository<Chatroom>,
+	constructor(
+		@InjectRepository(Chatroom)
+		private chatroomRepo: Repository<Chatroom>,
 
-    @InjectRepository(Message)
-    private messageRepo: Repository<Message>,
+		@InjectRepository(Message)
+		private messageRepo: Repository<Message>,
 
-    @InjectRepository(ChatroomParticipant)
-    private participantRepo: Repository<ChatroomParticipant>,
-  ) {}
+		@InjectRepository(ChatroomParticipant)
+		private participantRepo: Repository<ChatroomParticipant>,
+	) { }
 
-  async getMessagesByTeamId(teamId: number) {
-    const chatroom = await this.chatroomRepo.findOne({
-      where: { team_id: teamId },
-    });
-    if (!chatroom) throw new NotFoundException('Chatroom not found');
+	async getMessagesByTeamId(teamId: number) {
+		const chatroom = await this.chatroomRepo.findOne({
+			where: { team_id: teamId },
+		});
+		if (!chatroom) throw new NotFoundException('Chatroom not found');
 
-    const messages = await this.messageRepo.find({
-      where: { chatroom_id: chatroom.id },
-      relations: ['sender'],
-      order: { timestamp: 'ASC' },
-    });
+		const messages = await this.messageRepo.find({
+			where: { chatroom_id: chatroom.id },
+			relations: ['sender'],
+			order: { timestamp: 'ASC' },
+		});
 
-    return {
-      chatroom_id: chatroom.id.toString(),
-      messages: messages.map((msg) => ({
-        id: msg.id.toString(),
-        text: msg.text,
-        chatroom_id: msg.chatroom_id.toString(),
-        timestamp: msg.timestamp.toISOString(),
-        sender: {
-          id: msg.sender.id,
-          name: msg.sender.name,
-          profile_image: '', // TODO: Profile image
-        },
-      })),
-    };
-  }
+		return {
+			chatroom_id: chatroom.id.toString(),
+			messages: messages.map((msg) => ({
+				id: msg.id.toString(),
+				text: msg.text,
+				chatroom_id: msg.chatroom_id.toString(),
+				timestamp: msg.timestamp.toISOString(),
+				sender: {
+					id: msg.sender.id,
+					name: msg.sender.name,
+					profile_image: '', // TODO: Profile image
+				},
+			})),
+		};
+	}
 
-  async getDirectMessages(userId: string, peerId: string) {
-    const dmKey = [userId, peerId].sort().join('-');
+	async getDirectMessages(userId: string, peerId: string) {
+		const dmKey = [userId, peerId].sort().join('-');
 
-    let chatroom = await this.chatroomRepo.findOneBy({ dm_key: dmKey });
+		let chatroom = await this.chatroomRepo.findOneBy({ dm_key: dmKey });
 
-    if (!chatroom) {
-      chatroom = await this.chatroomRepo.save(
-        this.chatroomRepo.create({
-          type: 'dm',
-          dm_key: dmKey,
-        }),
-      );
+		if (!chatroom) {
+			chatroom = await this.chatroomRepo.save(
+				this.chatroomRepo.create({
+					type: 'dm',
+					dm_key: dmKey,
+				}),
+			);
 
-      await this.participantRepo.save([
-        this.participantRepo.create({
-          user_id: userId,
-          chatroom_id: chatroom.id,
-        }),
-        this.participantRepo.create({
-          user_id: peerId,
-          chatroom_id: chatroom.id,
-        }),
-      ]);
-    }
+			await this.participantRepo.save([
+				this.participantRepo.create({
+					user_id: userId,
+					chatroom_id: chatroom.id,
+				}),
+				this.participantRepo.create({
+					user_id: peerId,
+					chatroom_id: chatroom.id,
+				}),
+			]);
+		}
 
-    const messages = await this.messageRepo.find({
-      where: { chatroom_id: chatroom.id },
-      order: { timestamp: 'ASC' },
-      relations: ['sender'],
-    });
+		const messages = await this.messageRepo.find({
+			where: { chatroom_id: chatroom.id },
+			order: { timestamp: 'ASC' },
+			relations: ['sender'],
+		});
 
-    return {
-      chatroom_id: chatroom.id.toString(),
-      messages: messages.map((msg) => ({
-        id: msg.id.toString(),
-        text: msg.text,
-        chatroom_id: msg.chatroom_id.toString(),
-        timestamp: msg.timestamp.toISOString(),
-        sender: {
-          id: msg.sender.id,
-          name: msg.sender.name,
-          profile_image: '', // TODO: Profile image
-        },
-      })),
-    };
-  }
+		return {
+			chatroom_id: chatroom.id.toString(),
+			messages: messages.map((msg) => ({
+				id: msg.id.toString(),
+				text: msg.text,
+				chatroom_id: msg.chatroom_id.toString(),
+				timestamp: msg.timestamp.toISOString(),
+				sender: {
+					id: msg.sender.id,
+					name: msg.sender.name,
+					profile_image: '', // TODO: Profile image
+				},
+			})),
+		};
+	}
 }
