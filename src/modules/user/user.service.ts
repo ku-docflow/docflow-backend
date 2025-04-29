@@ -55,7 +55,8 @@ export class UserService {
 
 									return {
 										id: m.user.id,
-										name: m.user.name,
+										first_name: m.user.first_name,
+										last_name: m.user.last_name,
 										chatroom_id: dmChatroom?.id ?? null,
 									};
 								}),
@@ -83,5 +84,13 @@ export class UserService {
 			user,
 			orgs,
 		};
+	}
+
+	async updateName(userId: string, firstName: string, lastName: string) {
+		const user = await this.userRepo.findOneByOrFail({ id: userId });
+		user.first_name = firstName;
+		user.last_name = lastName;
+		await this.userRepo.save(user);
+		return user;
 	}
 }

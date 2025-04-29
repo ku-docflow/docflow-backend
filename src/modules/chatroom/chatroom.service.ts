@@ -39,7 +39,8 @@ export class ChatroomService {
 				timestamp: msg.timestamp.toISOString(),
 				sender: {
 					id: msg.sender.id,
-					name: msg.sender.name,
+					first_name: msg.sender.first_name,
+					last_name: msg.sender.last_name,
 					profile_image: '', // TODO: Profile image
 				},
 			})),
@@ -86,7 +87,8 @@ export class ChatroomService {
 				timestamp: msg.timestamp.toISOString(),
 				sender: {
 					id: msg.sender.id,
-					name: msg.sender.name,
+					first_name: msg.sender.first_name,
+					last_name: msg.sender.last_name,
 					profile_image: '', // TODO: Profile image
 				},
 			})),

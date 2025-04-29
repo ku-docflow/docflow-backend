@@ -6,13 +6,13 @@ import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+	constructor(private readonly authService: AuthService) { }
 
-  @Post('login')
-  @UseGuards(FirebaseAuthGuard)
-  login(@Req() req: FirebaseRequest, @Body() dto: LoginDto) {
-    const { id, email } = req.user;
+	@Post('login')
+	@UseGuards(FirebaseAuthGuard)
+	login(@Req() req: FirebaseRequest, @Body() dto: LoginDto) {
+		const { id, email } = req.user;
 
-    return this.authService.login(id, email, dto.name);
-  }
+		return this.authService.login(id, email, dto.first_name, dto.last_name);
+	}
 }
