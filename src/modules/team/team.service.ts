@@ -62,7 +62,10 @@ export class TeamService {
 				});
 				const userIds = memberships.map((m) => m.user_id);
 				if (userIds.length > 0) {
-					this.eventManager.emit('user.data_dirty', { userIds });
+					this.eventManager.emit('user.data_dirty', {
+						userIds,
+						chatroomIds: [savedChatroom.id],
+					});
 				}
 
 				const participant = manager.getRepository(ChatroomParticipant).create({
@@ -123,6 +126,7 @@ export class TeamService {
 
 		this.eventManager.emit('user.data_dirty', {
 			userIds: allTeamMemberIds,
+			chatroomIds: team.chatroom_id ? [team.chatroom_id] : [],
 		});
 
 		return { success: true };
@@ -143,7 +147,8 @@ export class TeamService {
 		await this.teamRepo.delete(id);
 
 		if (userIds.length > 0) {
-			this.eventManager.emit('user.data_dirty', { userIds });
+			// TODO: Socket close
+			this.eventManager.emit('user.data_dirty', { userIds, chatroomIds: [] });
 		}
 
 		return { success: true };

@@ -1,4 +1,4 @@
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, } from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/modules/chat/chat.service';
 import { QueryFailedError } from 'typeorm';
@@ -47,14 +47,13 @@ export class ChatGateway {
 			client.disconnect();
 			return;
 		}
+	}
 
-		try {
-			const chatroomIds = await this.chatService.findChatroomIdsByUserId(userId);
-			chatroomIds.forEach((id) => {
-				client.join(`room-${id}`);
-			});
-		} catch (err) {
-			client.disconnect();
-		}
+	@SubscribeMessage('join_room')
+	handleJoinRoom(
+		@MessageBody() data: { chatroom_id: number },
+		@ConnectedSocket() client: Socket,
+	) {
+		client.join(`room-${data.chatroom_id}`);
 	}
 }

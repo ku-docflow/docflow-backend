@@ -12,6 +12,7 @@ import { Team } from '../team/team.entity';
 import { Membership } from '../team/membership.entity';
 import { Chatroom } from '../chatroom/chatroom.entity';
 import { ChatroomParticipant } from '../chatroom/chatroom-participant.entity';
+import { EventManager } from 'src/common/events/event-manager';
 
 @Injectable()
 export class OrgService {
@@ -20,6 +21,7 @@ export class OrgService {
 		private readonly orgRepo: Repository<Org>,
 
 		private readonly dataSource: DataSource,
+		private readonly eventManager: EventManager
 	) { }
 
 	async create(dto: CreateOrgDto, id: string) {
@@ -58,6 +60,11 @@ export class OrgService {
 				});
 				await manager.save(participant);
 
+				this.eventManager.emit('user.data_dirty', {
+					userIds: [id],
+					chatroomIds: [savedChatroom.id],
+				});
+
 				return {
 					success: true,
 					org_id: savedOrg.id,
@@ -78,6 +85,15 @@ export class OrgService {
 		const result = await this.orgRepo.update(id, {
 			name: dto.name,
 		});
+
+		const members = await this.dataSource.getRepository(Membership).find({
+			where: { organization_id: id },
+			select: ['user_id'],
+		});
+		const userIds = members.map((m) => m.user_id);
+		if (userIds.length > 0) {
+			this.eventManager.emit('user.data_dirty', { userIds, chatroomIds: [] });
+		}
 
 		if (result.affected === 0) {
 			throw new NotFoundException('Organization not found');
