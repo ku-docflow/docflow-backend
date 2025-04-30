@@ -41,9 +41,10 @@ export class ChatroomService {
 					id: msg.sender.id,
 					first_name: msg.sender.first_name,
 					last_name: msg.sender.last_name,
-					profile_image: '', // TODO: Profile image
+					profile_image: '' // TODO: Profile Image,
 				},
-			})),
+				mentions: msg.mentions || [],
+			}))
 		};
 	}
 
@@ -89,9 +90,10 @@ export class ChatroomService {
 					id: msg.sender.id,
 					first_name: msg.sender.first_name,
 					last_name: msg.sender.last_name,
-					profile_image: '', // TODO: Profile image
+					profile_image: '' // TODO: Profile Image,
 				},
-			})),
+				mentions: msg.mentions || [],
+			}))
 		};
 	}
 }

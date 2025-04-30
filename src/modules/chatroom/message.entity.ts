@@ -9,6 +9,12 @@ import {
 import { Chatroom } from './chatroom.entity';
 import { User } from '../user/user.entity';
 
+export type Mention = {
+	userId: string;
+	startIndex: number;
+	endIndex: number;
+};
+
 @Entity('message')
 export class Message {
 	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
@@ -22,6 +28,9 @@ export class Message {
 
 	@Column()
 	text: string;
+
+	@Column('jsonb', { nullable: true })
+	mentions: Mention[];
 
 	@CreateDateColumn({ type: 'timestamptz' })
 	timestamp: Date;
