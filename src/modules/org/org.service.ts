@@ -12,6 +12,7 @@ import { Team } from '../team/team.entity';
 import { Membership } from '../team/membership.entity';
 import { Chatroom } from '../chatroom/chatroom.entity';
 import { ChatroomParticipant } from '../chatroom/chatroom-participant.entity';
+import { EventManager } from 'src/common/events/event-manager';
 
 @Injectable()
 export class OrgService {
@@ -20,6 +21,7 @@ export class OrgService {
 		private readonly orgRepo: Repository<Org>,
 
 		private readonly dataSource: DataSource,
+		private readonly eventManager: EventManager
 	) { }
 
 	async create(dto: CreateOrgDto, id: string) {
@@ -27,7 +29,7 @@ export class OrgService {
 			const result = await this.dataSource.transaction(async (manager) => {
 				const org = manager.create(Org, {
 					name: dto.name,
-					email: dto.email,
+					admins: [id],
 				});
 				const savedOrg = await manager.save(org);
 
@@ -58,6 +60,15 @@ export class OrgService {
 				});
 				await manager.save(participant);
 
+				this.eventManager.emit('user.data_dirty', {
+					userIds: [id],
+				});
+
+				this.eventManager.emit('user.chatroom_join', {
+					userId: id,
+					chatroomIds: [savedChatroom.id],
+				});
+
 				return {
 					success: true,
 					org_id: savedOrg.id,
@@ -73,24 +84,42 @@ export class OrgService {
 		}
 	}
 
+	// TODO: Replace with add / remove admin
 	async edit(id: number, dto: EditOrgDto) {
 		const result = await this.orgRepo.update(id, {
 			name: dto.name,
-			email: dto.email,
 		});
 
 		if (result.affected === 0) {
 			throw new NotFoundException('Organization not found');
 		}
 
+		const members = await this.dataSource.getRepository(Membership).find({
+			where: { organization_id: id },
+			select: ['user_id'],
+		});
+		const userIds = members.map((m) => m.user_id);
+		if (userIds.length > 0) {
+			this.eventManager.emit('user.data_dirty', { userIds });
+		}
+
 		return { success: true };
 	}
 
 	async delete(id: number) {
-		const result = await this.orgRepo.delete(id);
+		const members = await this.dataSource.getRepository(Membership).find({
+			where: { organization_id: id },
+			select: ['user_id'],
+		});
+		const userIds = members.map((m) => m.user_id);
 
+		const result = await this.orgRepo.delete(id);
 		if (result.affected === 0) {
 			throw new NotFoundException('Organization not found');
+		}
+
+		if (userIds.length > 0) {
+			this.eventManager.emit('user.data_dirty', { userIds });
 		}
 
 		return { success: true };

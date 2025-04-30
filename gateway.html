@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Gateway Test Page</title>
+	<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+	<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+	<style>
+		body {
+			font-family: sans-serif;
+			padding: 2rem;
+		}
+
+		input,
+		button {
+			margin: 0.5rem 0;
+			display: block;
+			width: 300px;
+		}
+
+		pre {
+			background: #f0f0f0;
+			padding: 1rem;
+			height: 300px;
+			overflow-y: auto;
+		}
+
+		hr {
+			margin: 2rem 0;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Gateway Interaction Test</h1>
+
+	<button id="login">🔐 Sign in with Google</button>
+	<button id="connect">🔌 Connect Socket</button>
+	<button id="getInit">📦 Get Init Data</button>
+
+	<hr />
+
+	<label>Organization Name:</label>
+	<input type="text" id="org_name" placeholder="e.g. Korea Univ" />
+	<button id="createOrg">🏢 Create Org</button>
+
+	<label>Team Name:</label>
+	<input type="text" id="team_name" placeholder="e.g. Math Team" />
+	<label>Organization ID for Team:</label>
+	<input type="number" id="org_id_for_team" placeholder="e.g. 1" />
+	<button id="createTeam">👥 Create Team</button>
+
+	<label>Team ID to Join:</label>
+	<input type="number" id="team_id" placeholder="e.g. 1" />
+	<button id="joinTeam">➕ Join Team</button>
+
+	<label>Chatroom ID:</label>
+	<input type="number" id="chatroom_id" placeholder="e.g. 5" />
+	<label>Message:</label>
+	<input type="text" id="msg_text" placeholder="Hello world" />
+	<button id="sendMsg">📨 Send Message</button>
+
+	<label>Organization ID to Edit:</label>
+	<input type="number" id="org_id_to_edit" placeholder="e.g. 1" />
+	<label>New Organization Name:</label>
+	<input type="text" id="new_org_name" placeholder="e.g. New Name" />
+	<button id="editOrg">✏️ Edit Org Name</button>
+
+	<hr />
+	<h3>Output:</h3>
+	<pre id="log"></pre>
+
+	<script>
+		const firebaseConfig = {
+			apiKey: "AIzaSyCmj90nWtGqEnYiXSe2F9qqxZVxgA4WKuw",
+			authDomain: "docflow-dd375.firebaseapp.com",
+			projectId: "docflow-dd375",
+			storageBucket: "docflow-dd375.firebasestorage.app",
+			messagingSenderId: "497732990186",
+			appId: "1:497732990186:web:77792c396a86ef84191393",
+			measurementId: "G-YZE9EPMX1X"
+		};
+
+		firebase.initializeApp(firebaseConfig);
+		const auth = firebase.auth();
+
+		let idToken = null;
+		let userId = null;
+		let socket = null;
+		let refreshListener = null;
+
+		const logArea = document.getElementById('log');
+		const log = (msg) => {
+			logArea.textContent += msg + '\n';
+			logArea.scrollTop = logArea.scrollHeight;
+		};
+
+		document.getElementById('login').onclick = async () => {
+			const provider = new firebase.auth.GoogleAuthProvider();
+			const result = await auth.signInWithPopup(provider);
+			const user = result.user;
+			idToken = await user.getIdToken();
+			userId = user.uid;
+			log(`✅ Logged in as ${user.email} (${userId})`);
+		};
+
+		document.getElementById('connect').onclick = () => {
+			if (!userId) return alert("Login first");
+			if (socket) {
+				socket.off('refresh_required', refreshListener);
+				socket.disconnect();
+			}
+			socket = io('http://localhost:4000', {query: {user_id: userId}});
+			refreshListener = () => {
+				log('🔄 Server said: refresh_required');
+				fetchInitData();
+			};
+
+			socket.on('connect', async () => {
+				log('🔗 Socket connected');
+				await initialFetchAndJoin();
+			});
+			socket.on('disconnect', () => log('❌ Socket disconnected'));
+			socket.on('refresh_required', refreshListener);
+			socket.on('receive_message', (msg) => log(`💬 ${msg.sender_id}: ${msg.text}`));
+			socket.on('chatroom_join_required', (payload) => {
+				if (payload?.chatroomIds) {
+					payload.chatroomIds.forEach((id) => {
+						log(`📥 Joining chatroom ${id} (from server push)`);
+						socket.emit('join_room', {chatroom_id: id});
+					});
+				}
+			});
+		};
+
+		const initialFetchAndJoin = async () => {
+			const res = await fetch('http://localhost:4000/user/init', {
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const data = await res.json();
+			log("📦 Initial Data:\n" + JSON.stringify(data, null, 2));
+
+			data.orgs.forEach(org => {
+				org.teams.forEach(team => {
+					if (team.chatroom_id) {
+						log(`📥 Joining team chatroom ${team.chatroom_id}`);
+						socket.emit('join_room', {chatroom_id: parseInt(team.chatroom_id)});
+					}
+					team.peers.forEach(peer => {
+						if (peer.chatroom_id) {
+							log(`📥 Joining DM chatroom ${peer.chatroom_id}`);
+							socket.emit('join_room', {chatroom_id: parseInt(peer.chatroom_id)});
+						}
+					});
+				});
+			});
+		};
+
+		const fetchInitData = async () => {
+			const res = await fetch('http://localhost:4000/user/init', {
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const data = await res.json();
+			log("📦 Init Data:\n" + JSON.stringify(data, null, 2));
+		};
+		document.getElementById('getInit').onclick = fetchInitData;
+
+		document.getElementById('createOrg').onclick = async () => {
+			const name = document.getElementById('org_name').value.trim();
+			if (!name) return alert("Enter org name");
+			const res = await fetch('http://localhost:4000/org', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({name})
+			});
+			const json = await res.json();
+			log("🏢 Created Org:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('createTeam').onclick = async () => {
+			const name = document.getElementById('team_name').value.trim();
+			const orgId = parseInt(document.getElementById('org_id_for_team').value);
+			if (!name || !orgId) return alert("Team name and org ID required");
+			const res = await fetch('http://localhost:4000/team', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({name, organizationId: orgId})
+			});
+			const json = await res.json();
+			log("👥 Created Team:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('joinTeam').onclick = async () => {
+			const teamId = parseInt(document.getElementById('team_id').value);
+			if (!teamId) return alert("Enter valid team ID");
+			const res = await fetch('http://localhost:4000/team/join', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({team_id: teamId})
+			});
+			const json = await res.json();
+			log("➕ Joined Team:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('sendMsg').onclick = () => {
+			const chatroomId = parseInt(document.getElementById('chatroom_id').value);
+			const text = document.getElementById('msg_text').value.trim();
+			if (!socket || !socket.connected) return alert("Socket not connected");
+			if (!chatroomId || !text) return alert("chatroom_id and text required");
+			socket.emit('send_message', {chatroom_id: chatroomId, sender_id: userId, text});
+			log(`📤 Sent: ${text}`);
+		};
+
+		document.getElementById('editOrg').onclick = async () => {
+			const orgId = parseInt(document.getElementById('org_id_to_edit').value);
+			const newName = document.getElementById('new_org_name').value.trim();
+			if (!orgId || !newName) return alert("Org ID and new name required");
+
+			const res = await fetch(`http://localhost:4000/org/${orgId}`, {
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({name: newName})
+			});
+
+			const json = await res.json();
+			log("✏️ Edited Org:\n" + JSON.stringify(json, null, 2));
+		};
+	</script>
+</body>
+
+</html>
