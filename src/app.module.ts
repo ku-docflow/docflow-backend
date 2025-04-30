@@ -12,6 +12,8 @@ import { QuestionModule } from './modules/question/question.module';
 import { AIModule } from './modules/AI/AI.module';
 import { QdrantModule } from './modules/qdrant/qdrant.module';
 import { DocumentModule } from './modules/document/document.module';
+import { EventManager } from './common/events/event-manager';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 dotenv.config();
 
@@ -37,8 +39,9 @@ dotenv.config();
 		AIModule,
 		QdrantModule,
 		DocumentModule,
+		EventEmitterModule.forRoot()
 	],
-	providers: [],
-	controllers: [],
+	providers: [EventManager],
+	controllers: [EventManager],
 })
 export class AppModule { }
