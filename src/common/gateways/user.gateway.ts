@@ -15,12 +15,16 @@ export class UserGateway implements OnModuleInit, OnGatewayConnection {
 	constructor(private readonly events: EventManager) { }
 
 	onModuleInit() {
-		this.events.on('user.data_dirty', ({ userIds, chatroomIds }) => {
+		this.events.on('user.data_dirty', ({ userIds }) => {
 			const uniqueIds = new Set(userIds);
 			uniqueIds.forEach((userId) => {
-				this.server.to(`user-${userId}`).emit('refresh_required', {
-					chatroomIds,
-				});
+				this.server.to(`user-${userId}`).emit('refresh_required');
+			});
+		});
+
+		this.events.on('user.chatroom_join', ({ userId, chatroomIds }) => {
+			this.server.to(`user-${userId}`).emit('chatroom_join_required', {
+				chatroomIds,
 			});
 		});
 	}

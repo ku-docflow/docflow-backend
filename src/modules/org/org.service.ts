@@ -62,6 +62,10 @@ export class OrgService {
 
 				this.eventManager.emit('user.data_dirty', {
 					userIds: [id],
+				});
+
+				this.eventManager.emit('user.chatroom_join', {
+					userId: id,
 					chatroomIds: [savedChatroom.id],
 				});
 
@@ -80,11 +84,15 @@ export class OrgService {
 		}
 	}
 
+	// TODO: Replace with add / remove admin
 	async edit(id: number, dto: EditOrgDto) {
-		// TODO: Replace with add / remove admin
 		const result = await this.orgRepo.update(id, {
 			name: dto.name,
 		});
+
+		if (result.affected === 0) {
+			throw new NotFoundException('Organization not found');
+		}
 
 		const members = await this.dataSource.getRepository(Membership).find({
 			where: { organization_id: id },
@@ -92,21 +100,26 @@ export class OrgService {
 		});
 		const userIds = members.map((m) => m.user_id);
 		if (userIds.length > 0) {
-			this.eventManager.emit('user.data_dirty', { userIds, chatroomIds: [] });
-		}
-
-		if (result.affected === 0) {
-			throw new NotFoundException('Organization not found');
+			this.eventManager.emit('user.data_dirty', { userIds });
 		}
 
 		return { success: true };
 	}
 
 	async delete(id: number) {
-		const result = await this.orgRepo.delete(id);
+		const members = await this.dataSource.getRepository(Membership).find({
+			where: { organization_id: id },
+			select: ['user_id'],
+		});
+		const userIds = members.map((m) => m.user_id);
 
+		const result = await this.orgRepo.delete(id);
 		if (result.affected === 0) {
 			throw new NotFoundException('Organization not found');
+		}
+
+		if (userIds.length > 0) {
+			this.eventManager.emit('user.data_dirty', { userIds });
 		}
 
 		return { success: true };

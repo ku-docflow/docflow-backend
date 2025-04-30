@@ -113,22 +113,49 @@
 				socket.disconnect();
 			}
 			socket = io('http://localhost:4000', {query: {user_id: userId}});
-			refreshListener = (payload) => {
+			refreshListener = () => {
 				log('🔄 Server said: refresh_required');
 				fetchInitData();
-
-				if (payload?.chatroomIds) {
-					payload.chatroomIds.forEach((id) => {
-						log(`📥 Joining chatroom ${id}`);
-						socket.emit('join_room', {chatroom_id: id});
-					});
-				}
 			};
 
-			socket.on('connect', () => log('🔗 Socket connected'));
+			socket.on('connect', async () => {
+				log('🔗 Socket connected');
+				await initialFetchAndJoin();
+			});
 			socket.on('disconnect', () => log('❌ Socket disconnected'));
 			socket.on('refresh_required', refreshListener);
 			socket.on('receive_message', (msg) => log(`💬 ${msg.sender_id}: ${msg.text}`));
+			socket.on('chatroom_join_required', (payload) => {
+				if (payload?.chatroomIds) {
+					payload.chatroomIds.forEach((id) => {
+						log(`📥 Joining chatroom ${id} (from server push)`);
+						socket.emit('join_room', {chatroom_id: id});
+					});
+				}
+			});
+		};
+
+		const initialFetchAndJoin = async () => {
+			const res = await fetch('http://localhost:4000/user/init', {
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const data = await res.json();
+			log("📦 Initial Data:\n" + JSON.stringify(data, null, 2));
+
+			data.orgs.forEach(org => {
+				org.teams.forEach(team => {
+					if (team.chatroom_id) {
+						log(`📥 Joining team chatroom ${team.chatroom_id}`);
+						socket.emit('join_room', {chatroom_id: parseInt(team.chatroom_id)});
+					}
+					team.peers.forEach(peer => {
+						if (peer.chatroom_id) {
+							log(`📥 Joining DM chatroom ${peer.chatroom_id}`);
+							socket.emit('join_room', {chatroom_id: parseInt(peer.chatroom_id)});
+						}
+					});
+				});
+			});
 		};
 
 		const fetchInitData = async () => {
