@@ -1,3 +1,3 @@
 export interface AppEventMap {
-	'user.data_dirty': { userId: string };
+	'user.data_dirty': { userIds: string[] };
 }

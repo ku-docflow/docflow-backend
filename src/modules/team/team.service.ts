@@ -56,6 +56,15 @@ export class TeamService {
 				});
 				await manager.getRepository(Membership).save(membership);
 
+				const memberships = await manager.getRepository(Membership).find({
+					where: { organization_id: dto.organizationId },
+					select: ['user_id'],
+				});
+				const userIds = memberships.map((m) => m.user_id);
+				if (userIds.length > 0) {
+					this.eventManager.emit('user.data_dirty', { userIds });
+				}
+
 				const participant = manager.getRepository(ChatroomParticipant).create({
 					user_id,
 					chatroom_id: savedChatroom.id,
@@ -105,17 +114,36 @@ export class TeamService {
 			});
 		}
 
-		this.eventManager.emit('user.data_dirty', { userId: user_id });
+		const members = await this.membershipRepo.find({
+			where: { team_id: team.id },
+			select: ['user_id'],
+		});
+
+		const allTeamMemberIds = members.map((m) => m.user_id);
+
+		this.eventManager.emit('user.data_dirty', {
+			userIds: allTeamMemberIds,
+		});
 
 		return { success: true };
 	}
 
 	async delete(id: number) {
-		await this.membershipRepo.delete({ team_id: id });
+		const team = await this.teamRepo.findOneBy({ id });
+		if (!team) throw new NotFoundException('Team not found');
 
-		const result = await this.teamRepo.delete(id);
-		if (result.affected === 0) {
-			throw new NotFoundException('Team not found');
+		const memberships = await this.membershipRepo.find({
+			where: { team_id: id },
+			select: ['user_id'],
+		});
+
+		const userIds = memberships.map((m) => m.user_id);
+
+		await this.membershipRepo.delete({ team_id: id });
+		await this.teamRepo.delete(id);
+
+		if (userIds.length > 0) {
+			this.eventManager.emit('user.data_dirty', { userIds });
 		}
 
 		return { success: true };

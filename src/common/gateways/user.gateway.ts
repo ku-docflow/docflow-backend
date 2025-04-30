@@ -15,8 +15,10 @@ export class UserGateway implements OnModuleInit, OnGatewayConnection {
 	constructor(private readonly events: EventManager) { }
 
 	onModuleInit() {
-		this.events.on('user.data_dirty', ({ userId }) => {
-			this.server.to(`user-${userId}`).emit('refresh_required');
+		this.events.on('user.data_dirty', ({ userIds }) => {
+			userIds.forEach((userId) => {
+				this.server.to(`user-${userId}`).emit('refresh_required');
+			});
 		});
 	}
 

@@ -77,7 +77,6 @@ export class OrgService {
 		// TODO: Replace with add / remove admin
 		const result = await this.orgRepo.update(id, {
 			name: dto.name,
-			admins: [],
 		});
 
 		if (result.affected === 0) {
