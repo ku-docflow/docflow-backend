@@ -1,5 +1,5 @@
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { AppEventMap } from './types';
 
 @Injectable()
@@ -15,19 +15,5 @@ export class EventManager {
 		handler: (payload: AppEventMap[K]) => void,
 	) {
 		this.emitter.on(event, handler);
-	}
-
-	once<K extends keyof AppEventMap>(
-		event: K,
-		handler: (payload: AppEventMap[K]) => void,
-	) {
-		this.emitter.once(event, handler);
-	}
-
-	off<K extends keyof AppEventMap>(
-		event: K,
-		handler: (payload: AppEventMap[K]) => void,
-	) {
-		this.emitter.off(event, handler);
 	}
 }

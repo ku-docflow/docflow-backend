@@ -14,6 +14,8 @@ import { QdrantModule } from './modules/qdrant/qdrant.module';
 import { DocumentModule } from './modules/document/document.module';
 import { EventManager } from './common/events/event-manager';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserGateway } from './common/gateways/user.gateway';
+import { GatewayModule } from './common/gateways/gateway.module';
 
 dotenv.config();
 
@@ -39,9 +41,10 @@ dotenv.config();
 		AIModule,
 		QdrantModule,
 		DocumentModule,
+		GatewayModule,
 		EventEmitterModule.forRoot()
 	],
-	providers: [EventManager],
-	controllers: [EventManager],
+	providers: [EventManager, UserGateway],
+	controllers: [],
 })
 export class AppModule { }

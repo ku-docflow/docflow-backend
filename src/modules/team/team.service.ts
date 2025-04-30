@@ -12,11 +12,13 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { Membership } from './membership.entity';
 import { JoinTeamDto } from './dto/join-team.dto';
 import { ChatroomParticipant } from '../chatroom/chatroom-participant.entity';
+import { EventManager } from 'src/common/events/event-manager';
 
 @Injectable()
 export class TeamService {
 	constructor(
 		private readonly dataSource: DataSource,
+		private readonly eventManager: EventManager,
 
 		@InjectRepository(Team)
 		private readonly teamRepo: Repository<Team>,
@@ -102,6 +104,8 @@ export class TeamService {
 				chatroom_id: team.chatroom_id,
 			});
 		}
+
+		this.eventManager.emit('user.data_dirty', { userId: user_id });
 
 		return { success: true };
 	}

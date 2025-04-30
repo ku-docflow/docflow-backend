@@ -1,6 +1,6 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatService } from './chat.service';
+import { ChatService } from 'src/modules/chat/chat.service';
 import { QueryFailedError } from 'typeorm';
 
 @WebSocketGateway({ cors: true })
