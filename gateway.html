@@ -78,6 +78,34 @@
 	<input type="text" id="new_org_name" placeholder="e.g. New Name" />
 	<button id="editOrg">✏️ Edit Org Name</button>
 
+	<label>Topic ID:</label>
+	<input type="number" id="topic_id_for_doc" placeholder="e.g. 1" />
+	<label>Markdown Text:</label>
+	<input type="text" id="markdown_text" placeholder="**Hello Doc**" />
+	<button id="createDoc">📝 Create Document</button>
+
+	<label>Topic ID to List Documents:</label>
+	<input type="number" id="topic_id_to_list" placeholder="e.g. 1" />
+	<button id="listDocs">📚 List Documents</button>
+
+	<label>Document ID to View:</label>
+	<input type="number" id="doc_id_to_get" placeholder="e.g. 5" />
+	<button id="getDoc">🔍 Get Document</button>
+
+	<label>Document ID to Edit:</label>
+	<input type="number" id="doc_id_to_edit" placeholder="e.g. 5" />
+	<label>New Markdown Text:</label>
+	<input type="text" id="new_doc_text" placeholder="Updated content" />
+	<button id="editDoc">✏️ Edit Document</button>
+
+	<label>Document ID to Delete:</label>
+	<input type="number" id="doc_id_to_delete" placeholder="e.g. 5" />
+	<button id="deleteDoc">🗑️ Delete Document</button>
+
+	<label>Organization ID to List Documents:</label>
+	<input type="number" id="org_id_to_list" placeholder="e.g. 1" />
+	<button id="listDocsByOrg">📂 List Docs by Org</button>
+
 	<hr />
 	<h3>Output:</h3>
 	<pre id="log"></pre>
@@ -301,7 +329,84 @@
 
 			log(`📤 Sent: ${text} with ${mentions.length} mention(s)`);
 		};
+
+		document.getElementById('createDoc').onclick = async () => {
+			const topicId = parseInt(document.getElementById('topic_id_for_doc').value);
+			const text = document.getElementById('markdown_text').value.trim();
+			if (!topicId || !text) return alert("Topic ID and text required");
+
+			const res = await fetch('http://localhost:4000/document', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({topic_id: topicId, text})
+			});
+			const json = await res.json();
+			log("📝 Created Document:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('listDocs').onclick = async () => {
+			const topicId = parseInt(document.getElementById('topic_id_to_list').value);
+			if (!topicId) return alert("Topic ID required");
+
+			const res = await fetch(`http://localhost:4000/document/topic/${topicId}`, {
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const json = await res.json();
+			log("📚 Document List:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('getDoc').onclick = async () => {
+			const docId = parseInt(document.getElementById('doc_id_to_get').value);
+			if (!docId) return alert("Document ID required");
+
+			const res = await fetch(`http://localhost:4000/document/${docId}`, {
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const json = await res.json();
+			log("🔍 Document:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('editDoc').onclick = async () => {
+			const docId = parseInt(document.getElementById('doc_id_to_edit').value);
+			const newText = document.getElementById('new_doc_text').value.trim();
+			if (!docId || !newText) return alert("ID and new text required");
+
+			const res = await fetch(`http://localhost:4000/document/${docId}`, {
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({text: newText})
+			});
+			const json = await res.json();
+			log("✏️ Edited Document:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('deleteDoc').onclick = async () => {
+			const docId = parseInt(document.getElementById('doc_id_to_delete').value);
+			if (!docId) return alert("Document ID required");
+
+			const res = await fetch(`http://localhost:4000/document/${docId}`, {
+				method: 'DELETE',
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const json = await res.json();
+			log("🗑️ Deleted Document:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('listDocsByOrg').onclick = async () => {
+			const orgId = parseInt(document.getElementById('org_id_to_list').value);
+			if (!orgId) return alert("Organization ID required");
+
+			const res = await fetch(`http://localhost:4000/document/org/${orgId}`, {
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const json = await res.json();
+			log("📂 Org Document List:\n" + JSON.stringify(json, null, 2));
+		};
 	</script>
 </body>
-
-</html>
