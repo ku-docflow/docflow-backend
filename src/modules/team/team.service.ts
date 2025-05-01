@@ -33,7 +33,7 @@ export class TeamService {
 				const teamRepo = manager.getRepository(Team);
 				const team = teamRepo.create({
 					name: dto.name,
-					organization_id: dto.organizationId,
+					organization_id: dto.organization_id,
 				});
 				const savedTeam = await teamRepo.save(team);
 
@@ -50,20 +50,15 @@ export class TeamService {
 
 				const membership = manager.getRepository(Membership).create({
 					user_id,
-					organization_id: dto.organizationId,
+					organization_id: dto.organization_id,
 					team_id: savedTeam.id,
 					role: 'admin',
 				});
 				await manager.getRepository(Membership).save(membership);
 
-				const memberships = await manager.getRepository(Membership).find({
-					where: { organization_id: dto.organizationId },
-					select: ['user_id'],
+				this.eventManager.emit('user.data_dirty', {
+					userIds: [user_id],
 				});
-				const userIds = memberships.map((m) => m.user_id);
-				if (userIds.length > 0) {
-					this.eventManager.emit('user.data_dirty', { userIds });
-				}
 				this.eventManager.emit('user.chatroom_join', {
 					userId: user_id,
 					chatroomIds: [savedChatroom.id],

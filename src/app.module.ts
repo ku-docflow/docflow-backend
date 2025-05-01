@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { OrgModule } from './modules/org/org.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -15,6 +15,7 @@ import { DocumentModule } from './modules/document/document.module';
 import { EventManager } from './common/events/event-manager';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GatewayModule } from './common/gateways/gateway.module';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 dotenv.config();
 
@@ -46,4 +47,8 @@ dotenv.config();
 	providers: [EventManager],
 	controllers: [],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+	configure(consumer: MiddlewareConsumer) {
+		consumer.apply(LoggerMiddleware).forRoutes('*');
+	}
+}

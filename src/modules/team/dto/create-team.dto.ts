@@ -1,5 +1,5 @@
 export class CreateTeamDto {
-  name: string;
-  email: string;
-  organizationId: number;
+	name: string;
+	email: string;
+	organization_id: number;
 }

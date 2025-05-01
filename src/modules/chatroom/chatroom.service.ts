@@ -37,13 +37,15 @@ export class ChatroomService {
 				text: msg.text,
 				chatroom_id: msg.chatroom_id.toString(),
 				timestamp: msg.timestamp.toISOString(),
+				type: msg.type,
 				sender: {
 					id: msg.sender.id,
 					first_name: msg.sender.first_name,
 					last_name: msg.sender.last_name,
-					profile_image: '', // TODO: Profile image
+					profile_image: '' // TODO: Profile Image,
 				},
-			})),
+				mentions: msg.mentions || [],
+			}))
 		};
 	}
 
@@ -85,13 +87,15 @@ export class ChatroomService {
 				text: msg.text,
 				chatroom_id: msg.chatroom_id.toString(),
 				timestamp: msg.timestamp.toISOString(),
+				type: msg.type,
 				sender: {
 					id: msg.sender.id,
 					first_name: msg.sender.first_name,
 					last_name: msg.sender.last_name,
-					profile_image: '', // TODO: Profile image
+					profile_image: '' // TODO: Profile Image,
 				},
-			})),
+				mentions: msg.mentions || [],
+			}))
 		};
 	}
 }
