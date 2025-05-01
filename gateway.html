@@ -207,7 +207,7 @@
 					Authorization: `Bearer ${idToken}`,
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({name, organizationId: orgId})
+				body: JSON.stringify({name, organization_id: orgId})
 			});
 			const json = await res.json();
 			log("👥 Created Team:\n" + JSON.stringify(json, null, 2));
