@@ -15,6 +15,11 @@ export type Mention = {
 	endIndex: number;
 };
 
+export enum MessageType {
+	default = 'default',
+	shared = 'shared'
+}
+
 @Entity('message')
 export class Message {
 	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
@@ -31,6 +36,13 @@ export class Message {
 
 	@Column('jsonb', { nullable: true })
 	mentions: Mention[];
+
+	@Column({
+		type: 'enum',
+		enum: MessageType,
+		default: MessageType.default,
+	})
+	type: MessageType;
 
 	@CreateDateColumn({ type: 'timestamptz' })
 	timestamp: Date;

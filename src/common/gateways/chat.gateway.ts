@@ -1,7 +1,7 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/modules/chat/chat.service';
-import { Mention } from 'src/modules/chatroom/message.entity';
+import { Mention, MessageType } from 'src/modules/chatroom/message.entity';
 import { QueryFailedError } from 'typeorm';
 
 @WebSocketGateway({ cors: true })
@@ -19,6 +19,7 @@ export class ChatGateway {
 			sender_id: string;
 			text: string;
 			mentions?: Mention[];
+			type: MessageType,
 		},
 	) {
 		try {
@@ -27,6 +28,7 @@ export class ChatGateway {
 				payload.sender_id,
 				payload.text,
 				payload.mentions,
+				payload.type ?? MessageType.default,
 			);
 
 			this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
@@ -35,6 +37,7 @@ export class ChatGateway {
 				sender_id: saved.sender_id,
 				text: saved.text,
 				timestamp: saved.timestamp,
+				type: saved.type,
 				mentions: saved.mentions ?? []
 			});
 		} catch (err) {
