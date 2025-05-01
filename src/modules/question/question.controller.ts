@@ -20,6 +20,7 @@ export class QuestionController {
         @Body() query: SemanticSearchRequestDto,
         @Res() res: Response,
     ) {
+        console.log(query);
         const searchResult: SearchBotReferenceDto[] = await this.questionService.getSearch(query);
 
         return res
@@ -40,6 +41,7 @@ export class QuestionController {
         @Body() query: SemanticSearchRequestDto,
         @Res() res: Response
     ) {
+        console.log(query);
         const ragResult: SearchBotResponseDto = await this.questionService.getRagSearch(query)
         return res
             .status(200)

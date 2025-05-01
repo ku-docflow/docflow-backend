@@ -5,7 +5,7 @@ import {Response} from "express"
 import {successCode, SuccessData, successMessage} from "../../common/middleware/response.middleware";
 import {GenBotReqDto} from "./dto/gen-bot.req.dto";
 
-@UseGuards(FirebaseAuthGuard)
+// @UseGuards(FirebaseAuthGuard)
 @Controller('gen-bot')
 export class GenBotController {
     constructor(private readonly genBotService: GenBotService) {
@@ -17,6 +17,7 @@ export class GenBotController {
         @Body() query: GenBotReqDto,
         @Res() res: Response
     ) {
+        console.log(query);
         const mock = {
             documentId: "b6f1b2e0-3c3e-4f9a-9439-4e87df75e732",
             organizationId: "b6f1b2e0",
