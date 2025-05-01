@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/modules/chat/chat.service';
@@ -8,6 +9,8 @@ import { QueryFailedError } from 'typeorm';
 export class ChatGateway {
 	@WebSocketServer()
 	server: Server;
+
+	private logger = new Logger('ChatGateway');
 
 	constructor(private readonly chatService: ChatService) { }
 
@@ -47,13 +50,19 @@ export class ChatGateway {
 		}
 	}
 
-	async handleConnection(client: Socket) {
+	handleConnection(client: Socket) {
 		const userId = client.handshake.query.user_id;
-
-		if (typeof userId !== 'string' || !userId.trim()) {
+		if (typeof userId === 'string') {
+			this.logger.log(`Connected: ${userId} (${client.id})`);
+		} else {
+			this.logger.warn(`Connection rejected: missing user_id`);
 			client.disconnect();
-			return;
 		}
+	}
+
+	handleDisconnect(client: Socket) {
+		const userId = client.handshake.query.user_id;
+		this.logger.log(`Disconnected: ${userId} (${client.id})`);
 	}
 
 	@SubscribeMessage('join_room')
