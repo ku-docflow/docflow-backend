@@ -2,7 +2,8 @@
 import {Injectable, OnModuleInit} from '@nestjs/common';
 import {QdrantClient} from '@qdrant/js-client-rest';
 import {QdrantSearchParams} from "./qdrant.interface";
-import {QdrantQueryPointEntity} from "../question/points.entity";
+import {PointEntity, QdrantQueryPointEntity} from "../question/points.entity";
+import {plainToInstance} from "class-transformer";
 
 
 export const collectionName = 'documents';
@@ -45,7 +46,7 @@ export class QdrantService implements OnModuleInit {
                 },
             ],
         }
-        return this.client.query("documents", {
+        const raw = await this.client.query("documents", {
             prefetch: [
                 {
                     query: params.denseVector,
@@ -66,6 +67,9 @@ export class QdrantService implements OnModuleInit {
             limit: 3,
             with_payload: true,
         });
+        const points = plainToInstance(PointEntity, raw.points);
+        return new QdrantQueryPointEntity(points);
+
     }
 
     // 특정 상황에서만 쓸 기능은 그대로 내부에서 접근
