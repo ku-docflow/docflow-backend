@@ -13,10 +13,21 @@
 			padding: 2rem;
 		}
 
+		fieldset {
+			margin-bottom: 2rem;
+			padding: 1rem;
+			border: 1px solid #ccc;
+		}
+
+		legend {
+			font-weight: bold;
+		}
+
 		input,
-		button {
-			margin: 0.5rem 0;
+		button,
+		select {
 			display: block;
+			margin: 0.5rem 0;
 			width: 300px;
 		}
 
@@ -26,88 +37,76 @@
 			height: 300px;
 			overflow-y: auto;
 		}
-
-		hr {
-			margin: 2rem 0;
-		}
 	</style>
 </head>
 
 <body>
 	<h1>Gateway Interaction Test</h1>
 
-	<button id="login">🔐 Sign in with Google</button>
-	<button id="connect">🔌 Connect Socket</button>
-	<button id="getInit">📦 Get Init Data</button>
+	<fieldset>
+		<legend>Authentication</legend>
+		<button id="login">🔐 Sign in with Google</button>
+		<button id="connect">🔌 Connect Socket</button>
+		<button id="getInit">📦 Get Init Data</button>
+	</fieldset>
 
-	<hr />
+	<fieldset>
+		<legend>Organization</legend>
+		<input type="text" id="org_name" placeholder="e.g. Korea Univ" />
+		<button id="createOrg">🏢 Create Org</button>
+		<input type="number" id="org_id_to_edit" placeholder="Org ID" />
+		<input type="text" id="new_org_name" placeholder="New Name" />
+		<button id="editOrg">✏️ Edit Org Name</button>
+	</fieldset>
 
-	<label>Organization Name:</label>
-	<input type="text" id="org_name" placeholder="e.g. Korea Univ" />
-	<button id="createOrg">🏢 Create Org</button>
+	<fieldset>
+		<legend>Team</legend>
+		<input type="text" id="team_name" placeholder="e.g. Math Team" />
+		<input type="number" id="org_id_for_team" placeholder="Org ID" />
+		<button id="createTeam">👥 Create Team</button>
+		<input type="number" id="team_id" placeholder="Team ID to Join" />
+		<button id="joinTeam">➕ Join Team</button>
+	</fieldset>
 
-	<label>Team Name:</label>
-	<input type="text" id="team_name" placeholder="e.g. Math Team" />
-	<label>Organization ID for Team:</label>
-	<input type="number" id="org_id_for_team" placeholder="e.g. 1" />
-	<button id="createTeam">👥 Create Team</button>
+	<fieldset>
+		<legend>Chat</legend>
+		<input type="number" id="chatroom_id" placeholder="Chatroom ID" />
+		<input type="text" id="mention_user_ids" placeholder="Mention User IDs (comma)" />
+		<input type="text" id="msg_text" placeholder="Message Text" />
+		<select id="msg_type">
+			<option value="default">default</option>
+			<option value="shared">shared</option>
+		</select>
+		<button id="sendMsg">📨 Send Message</button>
+	</fieldset>
 
-	<label>Team ID to Join:</label>
-	<input type="number" id="team_id" placeholder="e.g. 1" />
-	<button id="joinTeam">➕ Join Team</button>
+	<fieldset>
+		<legend>Topic</legend>
+		<input type="number" id="org_id_for_topic" placeholder="Org ID" />
+		<input type="text" id="topic_title" placeholder="Topic Title" />
+		<button id="createTopic">🆕 Create Topic</button>
+		<input type="number" id="org_id_to_list_topics" placeholder="Org ID" />
+		<button id="listTopics">📃 List Topics</button>
+	</fieldset>
 
-	<label>Chatroom ID:</label>
-	<input type="number" id="chatroom_id" placeholder="e.g. 5" />
+	<fieldset>
+		<legend>Document</legend>
+		<input type="number" id="topic_id_for_doc" placeholder="Topic ID" />
+		<input type="text" id="markdown_text" placeholder="**Hello Doc**" />
+		<button id="createDoc">📝 Create Document</button>
+		<input type="number" id="topic_id_to_list" placeholder="Topic ID" />
+		<button id="listDocs">📚 List Documents</button>
+		<input type="number" id="doc_id_to_get" placeholder="Doc ID" />
+		<button id="getDoc">🔍 Get Document</button>
+		<input type="number" id="doc_id_to_edit" placeholder="Doc ID" />
+		<input type="text" id="new_doc_text" placeholder="Updated content" />
+		<button id="editDoc">✏️ Edit Document</button>
+		<input type="number" id="doc_id_to_delete" placeholder="Doc ID" />
+		<button id="deleteDoc">🗑️ Delete Document</button>
+		<input type="number" id="org_id_to_list" placeholder="Org ID to List Docs" />
+		<button id="listDocsByOrg">📂 List Docs by Org</button>
+	</fieldset>
 
-	<label>Message:</label>
-	<label>Mention User IDs (comma-separated):</label>
-	<input type="text" id="mention_user_ids" placeholder="e.g. uid1,uid2" />
-	<input type="text" id="msg_text" placeholder="Hello world" />
-
-	<label>Message Type:</label>
-	<select id="msg_type">
-		<option value="default">default</option>
-		<option value="shared">shared</option>
-	</select>
-
-	<button id="sendMsg">📨 Send Message</button>
-
-	<label>Organization ID to Edit:</label>
-	<input type="number" id="org_id_to_edit" placeholder="e.g. 1" />
-	<label>New Organization Name:</label>
-	<input type="text" id="new_org_name" placeholder="e.g. New Name" />
-	<button id="editOrg">✏️ Edit Org Name</button>
-
-	<label>Topic ID:</label>
-	<input type="number" id="topic_id_for_doc" placeholder="e.g. 1" />
-	<label>Markdown Text:</label>
-	<input type="text" id="markdown_text" placeholder="**Hello Doc**" />
-	<button id="createDoc">📝 Create Document</button>
-
-	<label>Topic ID to List Documents:</label>
-	<input type="number" id="topic_id_to_list" placeholder="e.g. 1" />
-	<button id="listDocs">📚 List Documents</button>
-
-	<label>Document ID to View:</label>
-	<input type="number" id="doc_id_to_get" placeholder="e.g. 5" />
-	<button id="getDoc">🔍 Get Document</button>
-
-	<label>Document ID to Edit:</label>
-	<input type="number" id="doc_id_to_edit" placeholder="e.g. 5" />
-	<label>New Markdown Text:</label>
-	<input type="text" id="new_doc_text" placeholder="Updated content" />
-	<button id="editDoc">✏️ Edit Document</button>
-
-	<label>Document ID to Delete:</label>
-	<input type="number" id="doc_id_to_delete" placeholder="e.g. 5" />
-	<button id="deleteDoc">🗑️ Delete Document</button>
-
-	<label>Organization ID to List Documents:</label>
-	<input type="number" id="org_id_to_list" placeholder="e.g. 1" />
-	<button id="listDocsByOrg">📂 List Docs by Org</button>
-
-	<hr />
-	<h3>Output:</h3>
 	<pre id="log"></pre>
 
 	<script>
@@ -407,6 +406,34 @@
 			});
 			const json = await res.json();
 			log("📂 Org Document List:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('createTopic').onclick = async () => {
+			const orgId = parseInt(document.getElementById('org_id_for_topic').value);
+			const title = document.getElementById('topic_title').value.trim();
+			if (!orgId || !title) return alert("Org ID and title required");
+
+			const res = await fetch('http://localhost:4000/topic', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({organization_id: orgId, title})
+			});
+			const json = await res.json();
+			log("🆕 Created Topic:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('listTopics').onclick = async () => {
+			const orgId = parseInt(document.getElementById('org_id_to_list_topics').value);
+			if (!orgId) return alert("Org ID required");
+
+			const res = await fetch(`http://localhost:4000/topic/org/${orgId}`, {
+				headers: {Authorization: `Bearer ${idToken}`}
+			});
+			const json = await res.json();
+			log("📃 Topic List:\n" + JSON.stringify(json, null, 2));
 		};
 	</script>
 </body>

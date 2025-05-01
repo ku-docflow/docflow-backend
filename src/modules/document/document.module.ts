@@ -3,10 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Document } from './document.entity';
 import { DocumentService } from './document.service';
 import { DocumentController } from './document.controller';
-import { Topic } from '../topic/topic.entity';
+import { EventsModule } from 'src/common/events/events.module.';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Document, Topic])],
+	imports: [TypeOrmModule.forFeature([Document]), EventsModule],
 	controllers: [DocumentController],
 	providers: [DocumentService],
 })
