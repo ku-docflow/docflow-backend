@@ -11,6 +11,7 @@ import {ChatModule} from './modules/chat/chat.module';
 import { QuestionModule } from './modules/question/question.module';
 import { AIModule } from './modules/AI/AI.module';
 import { QdrantModule } from './modules/qdrant/qdrant.module';
+import { GenBotModule } from './modules/gen-bot/gen-bot.module';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ dotenv.config();
     QuestionModule,
     AIModule,
     QdrantModule,
+    GenBotModule,
   ],
 })
 export class AppModule {}
