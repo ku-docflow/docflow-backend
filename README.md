@@ -31,6 +31,31 @@
 $ npm install
 ```
 
+```bash
+// postgreSQL 다운
+$ docker pull postgres:16.3
+
+// 실행
+$ docker run --name postgres-dev \
+  -e POSTGRES_USER=myuser \
+  -e POSTGRES_PASSWORD=mypassword \
+  -e POSTGRES_DB=mydb \
+  -p 5432:5432 \
+  -d postgres:16.3
+
+// 확인
+$ docker ps
+```
+
+벡터 DB
+```bash
+$ docker pull qdrant/qdrant:1.13.6
+
+$ docker run -p 6333:6333 -p 6334:6334 \
+    -v "$(pwd)/qdrant_storage:/qdrant/storage:z" \
+    qdrant/qdrant
+```
+
 ## Compile and run the project
 
 ```bash

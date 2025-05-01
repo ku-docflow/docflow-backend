@@ -1,29 +1,29 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-  Column,
+	Entity,
+	PrimaryGeneratedColumn,
+	ManyToOne,
+	JoinColumn,
+	Column,
 } from 'typeorm';
 import { Chatroom } from './chatroom.entity';
 import { User } from '../user/user.entity';
 
 @Entity('chatroom_participant')
 export class ChatroomParticipant {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: number;
+	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
+	id: number;
 
-  @Column()
-  user_id: string;
+	@Column()
+	user_id: string;
 
-  @Column({ type: 'bigint' })
-  chatroom_id: number;
+	@Column({ type: 'bigint' })
+	chatroom_id: number;
 
-  @ManyToOne(() => Chatroom, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'chatroom_id' })
-  chatroom: Chatroom;
+	@ManyToOne(() => Chatroom, { onDelete: 'CASCADE' })
+	@JoinColumn({ name: 'chatroom_id' })
+	chatroom: Chatroom;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+	@ManyToOne(() => User, { onDelete: 'CASCADE' })
+	@JoinColumn({ name: 'user_id' })
+	user: User;
 }

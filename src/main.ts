@@ -5,6 +5,10 @@ import {ValidationPipe} from "@nestjs/common";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    app.enableCors({
+        origin: '*',
+        credentials: true,
+    });
 
     // DTO 요청 값 자동 검증 활성화
     app.useGlobalPipes(
@@ -17,7 +21,8 @@ async function bootstrap() {
 
 
     //항상 이게 맨 마지막
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(process.env.PORT ?? 4000);
+
 }
 
 bootstrap();
