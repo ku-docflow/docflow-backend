@@ -6,7 +6,7 @@ import {QuestionService} from "./question.service";
 import {SearchBotReferenceDto, SearchBotResponseDto} from "./dto/question.res.dto";
 import {successCode, SuccessData, successMessage} from "../../common/middleware/response.middleware";
 
-@UseGuards(FirebaseAuthGuard)
+// @UseGuards(FirebaseAuthGuard)
 @Controller('question')
 export class QuestionController {
     constructor(private readonly questionService: QuestionService) {
