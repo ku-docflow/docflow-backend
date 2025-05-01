@@ -1,7 +1,8 @@
 // src/modules/qdrant/qdrant.service.ts
 import {Injectable, OnModuleInit} from '@nestjs/common';
 import {QdrantClient} from '@qdrant/js-client-rest';
-import {QdrantQueryPoint, QdrantSearchParams} from "./qdrant.interface";
+import {QdrantSearchParams} from "./qdrant.interface";
+import {QdrantQueryPointEntity} from "../question/points.entity";
 
 
 export const collectionName = 'documents';
@@ -35,12 +36,12 @@ export class QdrantService implements OnModuleInit {
         });
     }
 
-    async getHybridSearch(params: QdrantSearchParams): Promise<QdrantQueryPoint> {
+    async getHybridSearch(params: QdrantSearchParams): Promise<QdrantQueryPointEntity> {
         const orgFilter = {
             must: [
                 {
-                    key: "orgId",
-                    match: {value: params.orgId},
+                    key: "organizationId",
+                    match: {value: params.organizationId},
                 },
             ],
         }

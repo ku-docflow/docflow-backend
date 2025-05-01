@@ -13,7 +13,7 @@ export class AIService {
         return this.api.createEmbedding(text);
     }
 
-    async getQuestionByChatContextString(context: string) {
-        return this.chatWithSystemAndUserPrompt(QuestionPrompt.systemPrompt(), QuestionPrompt.userPrompt(context))
+    async getQuestionByChatContextString(queryText:string, context: string) {
+        return this.chatWithSystemAndUserPrompt(QuestionPrompt.systemPrompt(), QuestionPrompt.userPrompt(queryText, context))
     }
 }

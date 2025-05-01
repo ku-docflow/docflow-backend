@@ -1,11 +1,9 @@
-import {SearchBotReferenceDto} from "./question.req.dto";
-
-export class SemanticSearchResultDto {
+export class SearchBotReferenceDto {
     documentId: string;
     title: string;
     summary: string;
     createdBy: string;
-    createdAt: string; // ISO8601
+    createdAt: Date;
     category?: 'DEV_DOC' | 'MEETING_DOC';
 }
 

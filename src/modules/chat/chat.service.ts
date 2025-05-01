@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {ForbiddenException, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository, MoreThan} from 'typeorm';
 import {Message} from '../chatroom/message.entity';
@@ -29,15 +29,15 @@ export class ChatService {
     }
 
     async getMessagesByRoomIdAndMinutes(chatroom_id: number, minutes: number): Promise<Message[]> {
-        const thirtyMinutesAgo = new Date(Date.now() - minutes * 60 * 1000);
+        const minutesAgo = new Date(Date.now() - minutes * 60 * 1000);
 
         return this.messageRepo.find({
             where: {
                 chatroom_id,
-                timestamp: MoreThan(thirtyMinutesAgo),
+                timestamp: MoreThan(minutesAgo),
             },
             order: {timestamp: 'DESC'},
-            take: 6,
+            take: 15,
         });
     }
 }
