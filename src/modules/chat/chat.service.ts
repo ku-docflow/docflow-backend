@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
-import { Mention, Message, MessageType } from '../chatroom/message.entity';
+import { Message } from '../chatroom/message.entity';
 import { ChatroomParticipant } from '../chatroom/chatroom-participant.entity';
+import { SendMessageDto } from '../chatroom/dto/send_message.dto';
 
 @Injectable()
 export class ChatService {
@@ -15,18 +16,11 @@ export class ChatService {
 	) {
 	}
 
-	async saveMessage(chatroom_id: number, sender_id: string, text: string, mentions: Mention[] = [], type: MessageType = MessageType.default) {
-		const message = this.messageRepo.create({
-			chatroom_id,
-			sender_id,
-			text,
-			mentions,
-			type
-		});
-		return this.messageRepo.save(message);
+	async saveMessage(message: SendMessageDto & { chatroom_id: number }) {
+		const savedMessage = this.messageRepo.create(message);
+		return this.messageRepo.save(savedMessage);
 	}
 
-	// desc / cursor pagination
 	async getMessages(chatroom_id: number) {
 		return this.messageRepo.find({
 			where: { chatroom_id },

@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/modules/chat/chat.service';
-import { Mention, MessageType } from 'src/modules/chatroom/message.entity';
+import { SendMessageDto } from 'src/modules/chatroom/dto/send_message.dto';
 import { QueryFailedError } from 'typeorm';
 
 @WebSocketGateway({ cors: true })
@@ -19,29 +19,18 @@ export class ChatGateway {
 		@MessageBody()
 		payload: {
 			chatroom_id: number;
-			sender_id: string;
-			text: string;
-			mentions?: Mention[];
-			type: MessageType,
+			message: SendMessageDto;
 		},
 	) {
 		try {
-			const saved = await this.chatService.saveMessage(
-				payload.chatroom_id,
-				payload.sender_id,
-				payload.text,
-				payload.mentions,
-				payload.type ?? MessageType.default,
-			);
+			const fullMessage = { ...payload.message, chatroom_id: payload.chatroom_id };
+			const saved = await this.chatService.saveMessage(fullMessage);
 
 			this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
-				id: saved.id,
-				chatroom_id: saved.chatroom_id,
-				sender_id: saved.sender_id,
-				text: saved.text,
-				timestamp: saved.timestamp,
-				type: saved.type,
-				mentions: saved.mentions ?? []
+				...saved,
+				mentions: saved.mentions ?? [],
+				shared_message_id: saved.shared_message_id ?? null,
+				shared_message_sender_id: saved.shared_message_sender_id ?? null,
 			});
 		} catch (err) {
 			if (err instanceof QueryFailedError && (err as any).code === '23503') {

@@ -313,6 +313,9 @@
 			const chatroomId = parseInt(document.getElementById('chatroom_id').value);
 			const text = document.getElementById('msg_text').value.trim();
 			const mentionRaw = document.getElementById('mention_user_ids').value.trim();
+			const type = document.getElementById('msg_type').value;
+			const sharedMessageId = null; // optional
+			const sharedSenderId = null; // optional
 
 			if (!socket || !socket.connected) return alert("Socket not connected");
 			if (!chatroomId || !text) return alert("chatroom_id and text required");
@@ -325,14 +328,21 @@
 				}))
 				: [];
 
-			socket.emit('send_message', {
-				chatroom_id: chatroomId,
+			const messageDto = {
 				sender_id: userId,
 				text,
 				mentions,
+				type,
+				shared_message_id: sharedMessageId,
+				shared_message_sender_id: sharedSenderId,
+			};
+
+			socket.emit('send_message', {
+				chatroom_id: chatroomId,
+				message: messageDto,
 			});
 
-			log(`📤 Sent: ${text} with ${mentions.length} mention(s)`);
+			log(`📤 Sent: ${text} (type=${type}, shared=${sharedMessageId ?? 'none'})`);
 		};
 
 		document.getElementById('createDoc').onclick = async () => {

@@ -35,20 +35,7 @@ export class ChatroomService {
 
 		return {
 			chatroom_id: chatroom.id.toString(),
-			messages: messages.map((msg) => ({
-				id: msg.id.toString(),
-				text: msg.text,
-				chatroom_id: msg.chatroom_id.toString(),
-				timestamp: msg.timestamp.toISOString(),
-				type: msg.type,
-				sender: {
-					id: msg.sender.id,
-					first_name: msg.sender.first_name,
-					last_name: msg.sender.last_name,
-					profile_image: '' // TODO: Profile Image,
-				},
-				mentions: msg.mentions || [],
-			}))
+			messages
 		};
 	}
 
@@ -95,20 +82,7 @@ export class ChatroomService {
 
 		return {
 			chatroom_id: chatroom.id.toString(),
-			messages: messages.map((msg) => ({
-				id: msg.id.toString(),
-				text: msg.text,
-				chatroom_id: msg.chatroom_id.toString(),
-				timestamp: msg.timestamp.toISOString(),
-				type: msg.type,
-				sender: {
-					id: msg.sender.id,
-					first_name: msg.sender.first_name,
-					last_name: msg.sender.last_name,
-					profile_image: '' // TODO: Profile Image,
-				},
-				mentions: msg.mentions || [],
-			}))
+			messages
 		};
 	}
 }
