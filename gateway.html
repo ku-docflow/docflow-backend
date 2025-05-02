@@ -78,6 +78,8 @@
 			<option value="shared">shared</option>
 		</select>
 		<button id="sendMsg">📨 Send Message</button>
+		<input type="number" id="chatroom_id_to_load" placeholder="Chatroom ID to Load" />
+		<button id="loadChatMessages">📨 Load Messages</button>
 	</fieldset>
 
 	<fieldset>
@@ -461,6 +463,27 @@
 			});
 			const json = await res.json();
 			log("💬 Fetched/Created DM Chatroom:\n" + JSON.stringify(json, null, 2));
+		};
+
+		document.getElementById('loadChatMessages').onclick = async () => {
+			const chatroomId = parseInt(document.getElementById('chatroom_id_to_load').value);
+			if (!chatroomId) return alert("Enter a valid chatroom ID");
+
+			const res = await fetch(`http://localhost:4000/chat/messages?chatroom_id=${chatroomId}`, {
+				headers: {Authorization: `Bearer ${idToken}`},
+			});
+			const json = await res.json();
+			log("📨 Chatroom Messages:\n" + JSON.stringify(json, null, 2));
+
+			json.messages.forEach((msg) => {
+				log(`💬 ${msg.sender.first_name} ${msg.sender.last_name}: ${msg.text}`);
+				if (msg.mentions?.length) {
+					log(`👉 Mentions: ${msg.mentions.map(m => m.userId).join(', ')}`);
+				}
+				if (msg.shared_message_id) {
+					log(`🔗 Shared from ${msg.shared_message_sender?.first_name} ${msg.shared_message_sender?.last_name}`);
+				}
+			});
 		};
 	</script>
 </body>
