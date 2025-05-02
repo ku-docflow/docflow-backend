@@ -18,20 +18,11 @@ export class QuestionController {
     @Post()
     async getQuestionQuery(
         @Body() query: SemanticSearchRequestDto,
-        @Res() res: Response,
+        // @Res() res: Response,
     ) {
         console.log(query);
         const searchResult: SearchBotReferenceDto[] = await this.questionService.getSearch(query);
-
-        return res
-            .status(200)
-            .json(
-                SuccessData(
-                    successCode.OK,
-                    successMessage.READ_POST_SUCCESS,
-                    searchResult,
-                ),
-            );
+        return searchResult;
 
     }
 
@@ -43,18 +34,8 @@ export class QuestionController {
     ) {
         console.log(query);
         const ragResult: SearchBotResponseDto = await this.questionService.getRagSearch(query)
-        return res
-            .status(200)
-            .json(
-                SuccessData(
-                    successCode.OK,
-                    successMessage.READ_POST_SUCCESS,
-                    ragResult,
-                ),
-            );
-
+        return ragResult;
     }
-
 
 }
 

@@ -19,7 +19,7 @@ export class GenBotController {
     ) {
         console.log(query);
         const mock = {
-            documentId: "b6f1b2e0-3c3e-4f9a-9439-4e87df75e732",
+            documentId: 131231,
             organizationId: "b6f1b2e0",
             createdAt: new Date(),
             title: "NestJS 협업에 관한 내용",
@@ -30,14 +30,6 @@ export class GenBotController {
             category: "DEV_DOC",
         }
 
-        return res
-            .status(200)
-            .json(
-                SuccessData(
-                    successCode.OK,
-                    successMessage.CREATE_POST_SUCCESS,
-                    mock,
-                ),
-            );
+        return mock
     }
 }

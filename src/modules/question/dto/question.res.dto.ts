@@ -1,5 +1,5 @@
 export class SearchBotReferenceDto {
-    documentId: string;
+    documentId: number;
     title: string;
     summary: string;
     createdBy: string;

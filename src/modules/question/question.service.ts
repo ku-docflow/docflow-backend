@@ -37,7 +37,7 @@ export class QuestionService {
             ragResponse: "bot 이 응답한 결과",
             references: [
                 {
-                    documentId: "abc123",
+                    documentId: 123,
                     title: "NestJS 구조 설계 문서",
                     summary: "NestJS 모듈 구성 방식과 DI 흐름 설명",
                     createdBy: "정하나",
@@ -54,14 +54,14 @@ export class QuestionService {
         // return queryPoint.extractPayloadPairs
 
         return [{
-            documentId: "abc123",
+            documentId: 12312,
             title: "NestJS 구조 설계 문서",
             summary: "NestJS 모듈 구성 방식과 DI 흐름 설명",
             createdBy: "정하나",
             createdAt: new Date(),
             category: "DEV_DOC"
         }, {
-            documentId: "abc123",
+            documentId: 1113,
             title: "NestJS 구조 회의록",
             summary: "NestJS 모듈 구성 방식과 DI 흐름 설명",
             createdBy: "정하나",
