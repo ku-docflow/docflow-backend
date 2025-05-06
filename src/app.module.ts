@@ -44,7 +44,8 @@ dotenv.config();
 		QdrantModule,
 		DocumentModule,
 		GatewayModule,
-      GenBotModule,
+		GenBotModule,
+		TopicModule,
 		EventEmitterModule.forRoot()
 	],
 	providers: [EventManager],
