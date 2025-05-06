@@ -1,7 +1,9 @@
 // src/modules/qdrant/qdrant.service.ts
 import {Injectable, OnModuleInit} from '@nestjs/common';
 import {QdrantClient} from '@qdrant/js-client-rest';
-import {QdrantQueryPoint, QdrantSearchParams} from "./qdrant.interface";
+import {QdrantSearchParams} from "./qdrant.interface";
+import {PointEntity, QdrantQueryPointEntity} from "../question/points.entity";
+import {plainToInstance} from "class-transformer";
 
 
 export const collectionName = 'documents';
@@ -35,16 +37,16 @@ export class QdrantService implements OnModuleInit {
         });
     }
 
-    async getHybridSearch(params: QdrantSearchParams): Promise<QdrantQueryPoint> {
+    async getHybridSearch(params: QdrantSearchParams): Promise<QdrantQueryPointEntity> {
         const orgFilter = {
             must: [
                 {
-                    key: "orgId",
-                    match: {value: params.orgId},
+                    key: "organizationId",
+                    match: {value: params.organizationId},
                 },
             ],
         }
-        return this.client.query("documents", {
+        const raw = await this.client.query("documents", {
             prefetch: [
                 {
                     query: params.denseVector,
@@ -65,6 +67,9 @@ export class QdrantService implements OnModuleInit {
             limit: 3,
             with_payload: true,
         });
+        const points = plainToInstance(PointEntity, raw.points);
+        return new QdrantQueryPointEntity(points);
+
     }
 
     // 특정 상황에서만 쓸 기능은 그대로 내부에서 접근

@@ -17,6 +17,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GatewayModule } from './common/gateways/gateway.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { TopicModule } from './modules/topic/topic.module';
+import { GenBotModule } from './modules/gen-bot/gen-bot.module';
 
 dotenv.config();
 
@@ -43,7 +44,7 @@ dotenv.config();
 		QdrantModule,
 		DocumentModule,
 		GatewayModule,
-		TopicModule,
+      GenBotModule,
 		EventEmitterModule.forRoot()
 	],
 	providers: [EventManager],
