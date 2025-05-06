@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Chatroom } from './chatroom.entity';
 import { Message } from './message.entity';
 import { ChatroomParticipant } from './chatroom-participant.entity';
+import { EventManager } from 'src/common/events/event-manager';
 
 @Injectable()
 export class ChatroomService {
@@ -16,6 +17,8 @@ export class ChatroomService {
 
 		@InjectRepository(ChatroomParticipant)
 		private participantRepo: Repository<ChatroomParticipant>,
+
+		private readonly eventManager: EventManager,
 	) { }
 
 	async getMessagesByTeamId(teamId: number) {
@@ -32,20 +35,7 @@ export class ChatroomService {
 
 		return {
 			chatroom_id: chatroom.id.toString(),
-			messages: messages.map((msg) => ({
-				id: msg.id.toString(),
-				text: msg.text,
-				chatroom_id: msg.chatroom_id.toString(),
-				timestamp: msg.timestamp.toISOString(),
-				type: msg.type,
-				sender: {
-					id: msg.sender.id,
-					first_name: msg.sender.first_name,
-					last_name: msg.sender.last_name,
-					profile_image: '' // TODO: Profile Image,
-				},
-				mentions: msg.mentions || [],
-			}))
+			messages
 		};
 	}
 
@@ -61,6 +51,16 @@ export class ChatroomService {
 					dm_key: dmKey,
 				}),
 			);
+
+			this.eventManager.emit('user.chatroom_join', {
+				userId,
+				chatroomIds: [chatroom.id],
+			});
+
+			this.eventManager.emit('user.chatroom_join', {
+				userId: peerId,
+				chatroomIds: [chatroom.id],
+			});
 
 			await this.participantRepo.save([
 				this.participantRepo.create({
@@ -82,20 +82,7 @@ export class ChatroomService {
 
 		return {
 			chatroom_id: chatroom.id.toString(),
-			messages: messages.map((msg) => ({
-				id: msg.id.toString(),
-				text: msg.text,
-				chatroom_id: msg.chatroom_id.toString(),
-				timestamp: msg.timestamp.toISOString(),
-				type: msg.type,
-				sender: {
-					id: msg.sender.id,
-					first_name: msg.sender.first_name,
-					last_name: msg.sender.last_name,
-					profile_image: '' // TODO: Profile Image,
-				},
-				mentions: msg.mentions || [],
-			}))
+			messages
 		};
 	}
 }

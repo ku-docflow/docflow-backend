@@ -2,7 +2,7 @@ import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard } from 'src/common/guards/firebase-auth.guard';
 import { UserService } from './user.service';
 import { FirebaseRequest } from 'src/common/interfaces/firebase-request.interface';
-import { UpdateNameDto } from '../team/dto/update_name.dto';
+import { UpdateNameDto } from './dto/update_name.dto';
 
 @Controller('user')
 export class UserController {

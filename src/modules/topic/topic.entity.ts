@@ -2,26 +2,26 @@ import {
 	Entity,
 	PrimaryGeneratedColumn,
 	Column,
+	CreateDateColumn,
 	ManyToOne,
 	JoinColumn,
-	CreateDateColumn,
 } from 'typeorm';
-import { Topic } from '../topic/topic.entity';
+import { Org } from '../org/org.entity';
 
-@Entity('document')
-export class Document {
+@Entity('topic')
+export class Topic {
 	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
 	id: number;
 
-	@ManyToOne(() => Topic, { onDelete: 'CASCADE' })
-	@JoinColumn({ name: 'topic_id' })
-	topic: Topic;
+	@ManyToOne(() => Org, { onDelete: 'CASCADE' })
+	@JoinColumn({ name: 'organization_id' })
+	organization: Org;
 
 	@Column({ type: 'bigint' })
-	topic_id: number;
+	organization_id: number;
 
-	@Column('text')
-	text: string;
+	@Column()
+	title: string;
 
 	@CreateDateColumn({ type: 'timestamp' })
 	created_at: Date;
