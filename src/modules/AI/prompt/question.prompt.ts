@@ -9,8 +9,9 @@ export class QuestionPrompt{
 - 가능한 경우 모호한 지시어(이것, 저것 등)는 구체화
 `
     }
-    static userPrompt(context: string):string{
+    static userPrompt(queryText: string, context: string):string{
         return `
+        **원하는 결과** : ${queryText}
         **대화 흐름 내용** : ${context} 
         `
     }

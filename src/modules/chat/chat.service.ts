@@ -46,13 +46,13 @@ export class ChatService {
 	async getMessagesByRoomIdAndMinutes(chatroom_id: number, minutes: number): Promise<Message[]> {
 		const thirtyMinutesAgo = new Date(Date.now() - minutes * 60 * 1000);
 
-		return this.messageRepo.find({
-			where: {
-				chatroom_id,
-				timestamp: MoreThan(thirtyMinutesAgo),
-			},
-			order: { timestamp: 'DESC' },
-			take: 6,
-		});
-	}
+        return this.messageRepo.find({
+            where: {
+                chatroom_id,
+                timestamp: MoreThan(thirtyMinutesAgo),
+            },
+            order: {timestamp: 'DESC'},
+            take: 15,
+        });
+    }
 }
