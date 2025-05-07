@@ -8,6 +8,7 @@ import { Chatroom } from "../chatroom/chatroom.entity";
 import { Message } from "../chatroom/message.entity";
 import { QdrantModule } from "../qdrant/qdrant.module";
 import { ChatModule } from '../chat/chat.module';
+import { QuestionGateway } from 'src/common/gateways/question.gateway';
 
 @Module({
 	imports: [
@@ -16,7 +17,7 @@ import { ChatModule } from '../chat/chat.module';
 		ChatModule
 	],
 	controllers: [QuestionController],
-	providers: [QuestionService, AIService, QuestionRepository]
+	providers: [QuestionService, AIService, QuestionRepository, QuestionGateway]
 })
 export class QuestionModule {
 }

@@ -115,6 +115,13 @@
 		<button id="fetchDMChatroom">🔍 Get or Create DM</button>
 	</fieldset>
 
+	<fieldset>
+		<legend>SearchBot</legend>
+		<input type="number" id="search_chatroom_id" placeholder="Search Chatroom ID" />
+		<input type="text" id="search_query" placeholder="Search Query" />
+		<button id="searchBotQuery">🔍 SearchBot Query</button>
+	</fieldset>
+
 	<pre id="log"></pre>
 
 	<script>
@@ -149,6 +156,20 @@
 			idToken = await user.getIdToken();
 			userId = user.uid;
 			log(`✅ Logged in as ${user.email} (${userId})`);
+
+			const res = await fetch('http://localhost:4000/auth/login', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					first_name: user.displayName?.split(' ')[0] ?? 'T',
+					last_name: user.displayName?.split(' ')[1] ?? 'Y',
+				}),
+			});
+			const json = await res.json();
+			log(`🔐 Server login result:\n${JSON.stringify(json, null, 2)}`);
 		};
 
 		document.getElementById('connect').onclick = () => {
@@ -191,6 +212,11 @@
 			});
 			const data = await res.json();
 			log("📦 Initial Data:\n" + JSON.stringify(data, null, 2));
+
+			if (data.user?.search_bot_chatroom_id) {
+				log(`🤖 Joining SearchBot chatroom ${data.user.search_bot_chatroom_id}`);
+				socket.emit('join_room', {chatroom_id: parseInt(data.user.search_bot_chatroom_id)});
+			}
 
 			data.orgs.forEach(org => {
 				org.teams.forEach(team => {
@@ -484,6 +510,25 @@
 					log(`🔗 Shared from ${msg.shared_message_sender?.first_name} ${msg.shared_message_sender?.last_name}`);
 				}
 			});
+		};
+
+		document.getElementById('searchBotQuery').onclick = () => {
+			const chatroomId = parseInt(document.getElementById('search_chatroom_id').value);
+			const query = document.getElementById('search_query').value.trim();
+
+			if (!socket || !socket.connected) return alert("Socket not connected");
+			if (!chatroomId || !query) return alert("chatroom_id and query required");
+
+			const payload = {
+				chatroom_id: chatroomId,
+				message: {
+					query,
+					chatroom_id: chatroomId,  // ✅ 키 이름도 통일
+				},
+			};
+
+			socket.emit('question_search', payload);
+			log(`🔍 Sent SearchBot query: "${query}"`);
 		};
 	</script>
 </body>
