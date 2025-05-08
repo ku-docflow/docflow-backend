@@ -1,6 +1,6 @@
 import { Mention, MessageType } from "src/modules/chatroom/message.entity";
 
-export class SemanticSearchRequestDto {
+export class SendMessageDto {
 	sender_id: string;
 	text: string;
 	mentions: Mention[];

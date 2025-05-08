@@ -17,7 +17,7 @@ export type Mention = {
 
 export enum MessageType {
 	default = 'default',
-	shared = 'shared'
+	shared = 'shared',
 }
 
 @Entity('message')
@@ -46,6 +46,20 @@ export class Message {
 
 	@CreateDateColumn({ type: 'timestamptz' })
 	timestamp: Date;
+
+	@Column({ type: 'bigint', nullable: true })
+	shared_message_id?: number;
+
+	@ManyToOne(() => Message, { onDelete: 'SET NULL' })
+	@JoinColumn({ name: 'shared_message_id' })
+	shared_message?: Message;
+
+	@Column({ nullable: true })
+	shared_message_sender_id?: string;
+
+	@ManyToOne(() => User, { onDelete: 'SET NULL' })
+	@JoinColumn({ name: 'shared_message_sender_id' })
+	shared_message_sender?: User;
 
 	@ManyToOne(() => Chatroom, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'chatroom_id' })

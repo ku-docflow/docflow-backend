@@ -6,13 +6,15 @@ import { ChatroomParticipant } from './chatroom-participant.entity';
 import { ChatroomService } from './chatroom.service';
 import { ChatroomController } from './chatroom.controller';
 import { Team } from '../team/team.entity';
+import { EventsModule } from 'src/common/events/events.module.';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Chatroom, Message, ChatroomParticipant, Team]),
-  ],
-  controllers: [ChatroomController],
-  providers: [ChatroomService],
-  exports: [ChatroomService],
+	imports: [
+		TypeOrmModule.forFeature([Chatroom, Message, ChatroomParticipant, Team]),
+		EventsModule
+	],
+	controllers: [ChatroomController],
+	providers: [ChatroomService],
+	exports: [ChatroomService],
 })
-export class ChatroomModule {}
+export class ChatroomModule { }

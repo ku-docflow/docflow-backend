@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { QuestionController } from './question.controller';
 import { QuestionService } from './question.service';
 import { AIService } from "../AI/AI.service";
@@ -16,11 +16,12 @@ import {AIModule} from "../AI/AI.module";
 	imports: [
 		TypeOrmModule.forFeature([Chatroom, Message, Document]),
 		QdrantModule,
-		ChatModule,
+		forwardRef(() => ChatModule),
 		AIModule
 	],
 	controllers: [QuestionController],
-	providers: [QuestionService, QuestionRepository, DocumentService]
+	providers: [QuestionService, QuestionRepository, DocumentService],
+	exports: [QuestionService],
 })
 export class QuestionModule {
 }
