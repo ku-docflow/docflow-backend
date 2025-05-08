@@ -12,13 +12,13 @@ import { ChatroomParticipant } from './chatroom-participant.entity';
 import { Team } from '../team/team.entity';
 
 @Entity('chatroom')
-@Check(`"type" IN ('dm', 'group')`)
 export class Chatroom {
 	@PrimaryGeneratedColumn('increment', { type: 'bigint' })
 	id: number;
 
+	@Check(`"type" IN ('dm', 'group', 'bot')`)
 	@Column()
-	type: 'dm' | 'group';
+	type: 'dm' | 'group' | 'bot';
 
 	@Column({ nullable: true })
 	name: string;
@@ -28,6 +28,9 @@ export class Chatroom {
 
 	@OneToMany(() => ChatroomParticipant, (p) => p.chatroom)
 	participants: ChatroomParticipant[];
+
+	@Column({ type: 'varchar', nullable: true, unique: true })
+	bot_user_id: string;
 
 	@ManyToOne(() => Team, { nullable: true, onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'team_id' })

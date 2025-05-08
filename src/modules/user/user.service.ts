@@ -5,6 +5,7 @@ import { Membership } from '../team/membership.entity';
 import { Repository } from 'typeorm';
 import { Team } from '../team/team.entity';
 import { Chatroom } from '../chatroom/chatroom.entity';
+import { EventManager } from 'src/common/events/event-manager';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,8 @@ export class UserService {
 
 		@InjectRepository(Chatroom)
 		private readonly chatroomRepo: Repository<Chatroom>,
+
+		private readonly eventManager: EventManager,
 	) { }
 	async getInitData(userId: string) {
 		const user = await this.userRepo.findOneByOrFail({ id: userId });
@@ -91,6 +94,11 @@ export class UserService {
 		user.first_name = firstName;
 		user.last_name = lastName;
 		await this.userRepo.save(user);
+
+		this.eventManager.emit('user.data_dirty', {
+			userIds: [userId],
+		});
+
 		return user;
 	}
 }

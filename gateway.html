@@ -51,6 +51,13 @@
 	</fieldset>
 
 	<fieldset>
+		<legend>User</legend>
+		<input type="text" id="first_name_input" placeholder="First Name" />
+		<input type="text" id="last_name_input" placeholder="Last Name" />
+		<button id="updateNameBtn">✏️ Update Name</button>
+	</fieldset>
+
+	<fieldset>
 		<legend>Organization</legend>
 		<input type="text" id="org_name" placeholder="e.g. Korea Univ" />
 		<button id="createOrg">🏢 Create Org</button>
@@ -77,7 +84,14 @@
 			<option value="default">default</option>
 			<option value="shared">shared</option>
 		</select>
+
+		<label>
+			<input type="checkbox" id="is_searchbot" />
+			🔍 Trigger SearchBot
+		</label>
+
 		<button id="sendMsg">📨 Send Message</button>
+
 		<input type="number" id="chatroom_id_to_load" placeholder="Chatroom ID to Load" />
 		<button id="loadChatMessages">📨 Load Messages</button>
 	</fieldset>
@@ -149,6 +163,20 @@
 			idToken = await user.getIdToken();
 			userId = user.uid;
 			log(`✅ Logged in as ${user.email} (${userId})`);
+
+			const res = await fetch('http://localhost:4000/auth/login', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					first_name: user.displayName?.split(' ')[0] ?? 'T',
+					last_name: user.displayName?.split(' ')[1] ?? 'Y',
+				}),
+			});
+			const json = await res.json();
+			log(`🔐 Server login result:\n${JSON.stringify(json, null, 2)}`);
 		};
 
 		document.getElementById('connect').onclick = () => {
@@ -191,6 +219,11 @@
 			});
 			const data = await res.json();
 			log("📦 Initial Data:\n" + JSON.stringify(data, null, 2));
+
+			if (data.user?.search_bot_chatroom_id) {
+				log(`🤖 Joining SearchBot chatroom ${data.user.search_bot_chatroom_id}`);
+				socket.emit('join_room', {chatroom_id: parseInt(data.user.search_bot_chatroom_id)});
+			}
 
 			data.orgs.forEach(org => {
 				org.teams.forEach(team => {
@@ -263,35 +296,6 @@
 			log("➕ Joined Team:\n" + JSON.stringify(json, null, 2));
 		};
 
-		document.getElementById('sendMsg').onclick = () => {
-			const chatroomId = parseInt(document.getElementById('chatroom_id').value);
-			const text = document.getElementById('msg_text').value.trim();
-			const mentionRaw = document.getElementById('mention_user_ids').value.trim();
-			const type = document.getElementById('msg_type').value;
-
-			if (!socket || !socket.connected) return alert("Socket not connected");
-			if (!chatroomId || !text) return alert("chatroom_id and text required");
-
-			const mentions = mentionRaw
-				? mentionRaw.split(',').map((id) => ({
-					userId: id.trim(),
-					startIndex: 0,
-					endIndex: 0,
-				}))
-				: [];
-
-			const messagePayload = {
-				chatroom_id: chatroomId,
-				sender_id: userId,
-				text,
-				mentions,
-				type,
-			};
-
-			socket.emit('send_message', messagePayload);
-
-			log(`📤 Sent: ${text} with ${mentions.length} mention(s), type=${type}`);
-		};
 
 		document.getElementById('editOrg').onclick = async () => {
 			const orgId = parseInt(document.getElementById('org_id_to_edit').value);
@@ -318,6 +322,7 @@
 			const type = document.getElementById('msg_type').value;
 			const sharedMessageId = null; // optional
 			const sharedSenderId = null; // optional
+			const isSearchBot = document.getElementById('is_searchbot').checked;
 
 			if (!socket || !socket.connected) return alert("Socket not connected");
 			if (!chatroomId || !text) return alert("chatroom_id and text required");
@@ -341,6 +346,7 @@
 
 			socket.emit('send_message', {
 				chatroom_id: chatroomId,
+				is_searchbot: isSearchBot,
 				message: messageDto,
 			});
 
@@ -484,6 +490,24 @@
 					log(`🔗 Shared from ${msg.shared_message_sender?.first_name} ${msg.shared_message_sender?.last_name}`);
 				}
 			});
+		};
+
+		document.getElementById('updateNameBtn').onclick = async () => {
+			const firstName = document.getElementById('first_name_input').value.trim();
+			const lastName = document.getElementById('last_name_input').value.trim();
+			if (!firstName || !lastName) return alert("Enter both first and last name");
+
+			const res = await fetch('http://localhost:4000/user/name', {
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${idToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({first_name: firstName, last_name: lastName}),
+			});
+
+			const json = await res.json();
+			log("✏️ Updated Name:\n" + JSON.stringify(json, null, 2));
 		};
 	</script>
 </body>
