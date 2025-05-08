@@ -8,11 +8,14 @@ const AIApi: ClassProvider = {
 }
 
 @Module({
-    controllers: [],
     providers: [
-        AIApi,
+        {
+            provide: 'AIApi',
+            useClass: AIApiImpl,
+        },
         AIService
-    ]
+    ],
+    exports: [AIService]
 })
 export class AIModule {
 }
