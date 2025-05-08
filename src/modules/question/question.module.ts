@@ -8,16 +8,19 @@ import { Chatroom } from "../chatroom/chatroom.entity";
 import { Message } from "../chatroom/message.entity";
 import { QdrantModule } from "../qdrant/qdrant.module";
 import { ChatModule } from '../chat/chat.module';
-// import { QuestionGateway } from 'src/common/gateways/question.gateway';
+import {DocumentService} from "../document/document.service";
+import {Document} from "../document/document.entity";
+import {AIModule} from "../AI/AI.module";
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Chatroom, Message]),
+		TypeOrmModule.forFeature([Chatroom, Message, Document]),
 		QdrantModule,
-		forwardRef(() => ChatModule)
+		forwardRef(() => ChatModule),
+		AIModule
 	],
 	controllers: [QuestionController],
-	providers: [QuestionService, AIService, QuestionRepository],
+	providers: [QuestionService, QuestionRepository, DocumentService],
 	exports: [QuestionService],
 })
 export class QuestionModule {

@@ -50,16 +50,16 @@ export class QdrantService implements OnModuleInit {
             prefetch: [
                 {
                     query: params.denseVector,
-                    using: "dense",
+                    // using: "dense",
                     filter: orgFilter,
                     limit: 20,
                 },
-                {
-                    query: params.queryText, // 예: "recommendation system"
-                    using: "sparse",
-                    filter: orgFilter,
-                    limit: 20,
-                },
+                // {
+                //     query: params.denseVector, // 예: "recommendation system"
+                //     using: "sparse",
+                //     filter: orgFilter,
+                //     limit: 20,
+                // },
             ],
             query: {
                 fusion: "dbsf", // 또는 "rrf"

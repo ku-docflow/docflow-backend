@@ -13,6 +13,8 @@ export const envs: DocflowEnv = {
   FIREBASE_PRIVATE_KEY: process.env['FIREBASE_PRIVATE_KEY'],
   QDRANT_HOST: process.env.QDRANT_HOST ?? 'localhost',
   QDRANT_PORT: Number(process.env.QDRANT_PORT) || 6333,
+
+  API_BASE_URL: process.env.API_BASE_URL ?? "http://localhost:8081",
 };
 
 interface DocflowEnv {
@@ -28,4 +30,6 @@ interface DocflowEnv {
 
   QDRANT_HOST: string | undefined;
   QDRANT_PORT: number | undefined;
+
+  API_BASE_URL: string;
 }

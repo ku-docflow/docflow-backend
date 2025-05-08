@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {In, Repository} from 'typeorm';
 import { Document } from './document.entity';
 import { EventManager } from 'src/common/events/event-manager';
 import { Membership } from '../team/membership.entity';
@@ -94,5 +94,12 @@ export class DocumentService {
 		if (userIds.length > 0) {
 			this.eventManager.emit('user.data_dirty', { userIds });
 		}
+	}
+
+
+	async getDocByIds(ids: number[]): Promise<Document[]> {
+		return this.documentRepo.find({
+			where: { id: In(ids) },
+		});
 	}
 }

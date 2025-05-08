@@ -1,8 +1,12 @@
 import {AIApi} from "./api/AI.api";
 import {QuestionPrompt} from "./prompt/question.prompt";
+import {Inject, Injectable} from "@nestjs/common";
 
+@Injectable()
 export class AIService {
-    constructor(private readonly api: AIApi) {
+    constructor(
+        @Inject('AIApi')
+        private readonly api: AIApi) {
     }
 
     async chatWithSystemAndUserPrompt(system: string, user: string): Promise<string> {
