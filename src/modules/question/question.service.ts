@@ -16,7 +16,7 @@ export class QuestionService {
 
 
 	// Rag
-	async getRagSearch(query: SemanticSearchRequestDto): Promise<SearchBotResponseDto> {
+	async getRagSearch(_query: SemanticSearchRequestDto): Promise<SearchBotResponseDto> {
 		// const queryPoint: QdrantQueryPointEntity = await this.queryMessageContext(chatroomId, queryText)
 		// const pointIds = queryPoint.extractIds
 		// const payloads = queryPoint.extractPayloadPairs
@@ -25,13 +25,13 @@ export class QuestionService {
 		// payloads.map((payload) => payload.documentId)
 		// 파이썬 서버 호출
 
-		const mockPythonResponse = {
-			statusCode: 200,
-			message: "성공했습니다",
-			data: {
-				"ragResponse": "Rag 기반으로 생성된 답변 내용",
-			}
-		}
+		// const mockPythonResponse = {
+		// 	statusCode: 200,
+		// 	message: "성공했습니다",
+		// 	data: {
+		// 		"ragResponse": "Rag 기반으로 생성된 답변 내용",
+		// 	}
+		// }
 
 		return {
 			ragResponse: "bot 이 응답한 결과",
@@ -49,7 +49,7 @@ export class QuestionService {
 	}
 
 	// Search
-	async getSearch(query: SemanticSearchRequestDto): Promise<SearchBotReferenceDto[]> {
+	async getSearch(_query: SemanticSearchRequestDto): Promise<SearchBotReferenceDto[]> {
 		// const queryPoint: QdrantQueryPointEntity = await this.queryMessageContext(chatroomId, queryText)
 		// return queryPoint.extractPayloadPairs
 

@@ -1,10 +1,7 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
-import { FirebaseAuthGuard } from "../../common/guards/firebase-auth.guard";
+import { Body, Controller, Post } from '@nestjs/common';
 import { SemanticSearchRequestDto } from "./dto/question.req.dto";
 import { QuestionService } from "./question.service";
 import { SearchBotReferenceDto, SearchBotResponseDto } from "./dto/question.res.dto";
-import { successCode, SuccessData, successMessage } from "../../common/middleware/response.middleware";
 
 // @UseGuards(FirebaseAuthGuard)
 @Controller('question')
@@ -30,7 +27,6 @@ export class QuestionController {
 	@Post('rag')
 	async getRagSearchBot(
 		@Body() query: SemanticSearchRequestDto,
-		@Res() res: Response
 	) {
 		console.log(query);
 		const ragResult: SearchBotResponseDto = await this.questionService.getRagSearch(query)

@@ -3,6 +3,8 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/modules/chat/chat.service';
 import { SendMessageDto } from 'src/modules/chatroom/dto/send_message.dto';
+import { SearchBotReferenceDto } from 'src/modules/question/dto/question.res.dto';
+import { QuestionService } from 'src/modules/question/question.service';
 import { QueryFailedError } from 'typeorm';
 
 @WebSocketGateway({ cors: true })
@@ -12,13 +14,14 @@ export class ChatGateway {
 
 	private logger = new Logger('ChatGateway');
 
-	constructor(private readonly chatService: ChatService) { }
+	constructor(private readonly chatService: ChatService, private readonly questionService: QuestionService) { }
 
 	@SubscribeMessage('send_message')
 	async handleSendMessage(
 		@MessageBody()
 		payload: {
 			chatroom_id: number;
+			is_searchbot: boolean;
 			message: SendMessageDto;
 		},
 	) {
@@ -32,6 +35,16 @@ export class ChatGateway {
 				shared_message_id: saved.shared_message_id ?? null,
 				shared_message_sender_id: saved.shared_message_sender_id ?? null,
 			});
+
+			if (payload.is_searchbot) {
+				const results: SearchBotReferenceDto[] = await this.questionService.getSearch(payload.message);
+
+				this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
+					sender_id: '검색봇',
+					text: results.map(r => `${r.title} [${r.category}] — ${r.summary}`).join('\n'),
+					mentions: [],
+				});
+			}
 		} catch (err) {
 			if (err instanceof QueryFailedError && (err as any).code === '23503') {
 				throw new WsException('Chatroom or User does not exist');

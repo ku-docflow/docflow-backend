@@ -1,11 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import { Mention, MessageType } from "src/modules/chatroom/message.entity";
 
 export class SemanticSearchRequestDto {
-    @IsString()
-    @IsNotEmpty()
-    query: string;
-
-    @IsNumber()
-    @IsNotEmpty()
-    chatRoomId: number;
+	sender_id: string;
+	text: string;
+	mentions: Mention[];
+	type?: MessageType;
+	shared_message_id?: number;
+	shared_message_sender_id?: string;
 }
