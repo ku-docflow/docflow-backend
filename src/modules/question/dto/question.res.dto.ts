@@ -9,6 +9,8 @@ export class SearchBotReferenceDto {
 
 
 export class SearchBotResponseDto {
+	// AI 응답
 	ragResponse: string;
+	// 어떤 문서를 이용해 응답했는지
 	references: SearchBotReferenceDto[];
 }

@@ -11,17 +11,18 @@ import { ChatModule } from '../chat/chat.module';
 import {DocumentService} from "../document/document.service";
 import {Document} from "../document/document.entity";
 import {AIModule} from "../AI/AI.module";
+import {EventsModule} from "../../common/events/events.module.";
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([Chatroom, Message, Document]),
 		QdrantModule,
 		forwardRef(() => ChatModule),
-		AIModule
+		AIModule,
+		EventsModule
 	],
 	controllers: [QuestionController],
 	providers: [QuestionService, QuestionRepository, DocumentService],
 	exports: [QuestionService],
 })
-export class QuestionModule {
-}
+export class QuestionModule {}
