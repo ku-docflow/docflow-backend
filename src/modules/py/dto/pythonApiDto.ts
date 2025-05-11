@@ -11,6 +11,14 @@ export interface Reference {
     content: string;
 }
 
+export interface SaveDocumentRequest{
+    documentID: number;
+    title : string;
+    content: string
+    userId: string;
+    createdBy : string;
+}
+
 export interface SearchDocumentRequest {
     references: Reference[] | string[]
     userQuery: string;

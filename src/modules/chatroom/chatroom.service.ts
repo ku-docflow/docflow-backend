@@ -1,88 +1,103 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Chatroom } from './chatroom.entity';
-import { Message } from './message.entity';
-import { ChatroomParticipant } from './chatroom-participant.entity';
-import { EventManager } from 'src/common/events/event-manager';
+import {Injectable, NotFoundException} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository} from 'typeorm';
+import {Chatroom} from './chatroom.entity';
+import {Message} from './message.entity';
+import {ChatroomParticipant} from './chatroom-participant.entity';
+import {EventManager} from 'src/common/events/event-manager';
 
 @Injectable()
 export class ChatroomService {
-	constructor(
-		@InjectRepository(Chatroom)
-		private chatroomRepo: Repository<Chatroom>,
+    constructor(
+        @InjectRepository(Chatroom)
+        private chatroomRepo: Repository<Chatroom>,
+        @InjectRepository(Message)
+        private messageRepo: Repository<Message>,
+        @InjectRepository(ChatroomParticipant)
+        private participantRepo: Repository<ChatroomParticipant>,
+        private readonly eventManager: EventManager,
+    ) {
+    }
 
-		@InjectRepository(Message)
-		private messageRepo: Repository<Message>,
+    async getMessagesByTeamId(teamId: number) {
+        const chatroom = await this.chatroomRepo.findOne({
+            where: {team_id: teamId},
+        });
+        if (!chatroom) throw new NotFoundException('Chatroom not found');
 
-		@InjectRepository(ChatroomParticipant)
-		private participantRepo: Repository<ChatroomParticipant>,
+        const messages = await this.messageRepo.find({
+            where: {chatroom_id: chatroom.id},
+            relations: ['sender'],
+            order: {timestamp: 'ASC'},
+        });
 
-		private readonly eventManager: EventManager,
-	) { }
+        return {
+            chatroom_id: chatroom.id.toString(),
+            messages
+        };
+    }
 
-	async getMessagesByTeamId(teamId: number) {
-		const chatroom = await this.chatroomRepo.findOne({
-			where: { team_id: teamId },
-		});
-		if (!chatroom) throw new NotFoundException('Chatroom not found');
+    async getDirectMessages(userId: string, peerId: string) {
+        const dmKey = [userId, peerId].sort().join('-');
 
-		const messages = await this.messageRepo.find({
-			where: { chatroom_id: chatroom.id },
-			relations: ['sender'],
-			order: { timestamp: 'ASC' },
-		});
+        let chatroom = await this.chatroomRepo.findOneBy({dm_key: dmKey});
 
-		return {
-			chatroom_id: chatroom.id.toString(),
-			messages
-		};
-	}
+        if (!chatroom) {
+            chatroom = await this.chatroomRepo.save(
+                this.chatroomRepo.create({
+                    type: 'dm',
+                    dm_key: dmKey,
+                }),
+            );
 
-	async getDirectMessages(userId: string, peerId: string) {
-		const dmKey = [userId, peerId].sort().join('-');
+            this.eventManager.emit('user.chatroom_join', {
+                userId,
+                chatroomIds: [chatroom.id],
+            });
 
-		let chatroom = await this.chatroomRepo.findOneBy({ dm_key: dmKey });
+            this.eventManager.emit('user.chatroom_join', {
+                userId: peerId,
+                chatroomIds: [chatroom.id],
+            });
 
-		if (!chatroom) {
-			chatroom = await this.chatroomRepo.save(
-				this.chatroomRepo.create({
-					type: 'dm',
-					dm_key: dmKey,
-				}),
-			);
+            await this.participantRepo.save([
+                this.participantRepo.create({
+                    user_id: userId,
+                    chatroom_id: chatroom.id,
+                }),
+                this.participantRepo.create({
+                    user_id: peerId,
+                    chatroom_id: chatroom.id,
+                }),
+            ]);
+        }
 
-			this.eventManager.emit('user.chatroom_join', {
-				userId,
-				chatroomIds: [chatroom.id],
-			});
+        const messages = await this.messageRepo.find({
+            where: {chatroom_id: chatroom.id},
+            order: {timestamp: 'ASC'},
+            relations: ['sender'],
+        });
 
-			this.eventManager.emit('user.chatroom_join', {
-				userId: peerId,
-				chatroomIds: [chatroom.id],
-			});
+        return {
+            chatroom_id: chatroom.id.toString(),
+            messages
+        };
+    }
 
-			await this.participantRepo.save([
-				this.participantRepo.create({
-					user_id: userId,
-					chatroom_id: chatroom.id,
-				}),
-				this.participantRepo.create({
-					user_id: peerId,
-					chatroom_id: chatroom.id,
-				}),
-			]);
-		}
+    async getOrgIdByChatroomId(chatroomId: number): Promise<number> {
+        const chatroom = await this.chatroomRepo.findOne({
+            where: { id: chatroomId },
+            relations: ['team', 'team.organization'],
+        });
 
-		const messages = await this.messageRepo.find({
-			where: { chatroom_id: chatroom.id },
-			order: { timestamp: 'ASC' },
-			relations: ['sender'],
-		});
+        if (!chatroom?.team?.organization?.id) {
+            throw new NotFoundException('Organization ID not found for this chatroom');
+        }
 
-		return {
-			chatroom_id: chatroom.id.toString(),
-			messages
-		};
-	}
+        return chatroom.team.organization.id;
+    }
+
+    getChatContextByStartAndEnd(){
+
+    }
 }

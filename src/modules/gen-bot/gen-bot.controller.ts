@@ -1,9 +1,6 @@
-import {Body, Controller, Post, Res, UseGuards} from '@nestjs/common';
+import {Body, Controller, Post} from '@nestjs/common';
 import {GenBotService} from "./gen-bot.service";
-import {FirebaseAuthGuard} from "../../common/guards/firebase-auth.guard";
-import {Response} from "express"
-import {successCode, SuccessData, successMessage} from "../../common/middleware/response.middleware";
-import {GenBotReqDto} from "./dto/gen-bot.req.dto";
+import {GenBotRequestDto} from "./dto/gen-bot.dto";
 
 // @UseGuards(FirebaseAuthGuard)
 @Controller('gen-bot')
@@ -14,8 +11,7 @@ export class GenBotController {
 
     @Post()
     async createDocument(
-        @Body() query: GenBotReqDto,
-        @Res() res: Response
+        @Body() query: GenBotRequestDto,
     ) {
         console.log(query);
         const mock = {
