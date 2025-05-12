@@ -13,10 +13,11 @@ import {ChatModule} from "../chat/chat.module";
 import {EventsModule} from "../../common/events/events.module.";
 import {DocumentService} from "../document/document.service";
 import {EventManager} from "../../common/events/event-manager";
+import { User } from '../user/user.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([ Message,Document, Chatroom, ChatroomParticipant]),
+        TypeOrmModule.forFeature([ Message,Document, Chatroom, ChatroomParticipant, User]),
         AIModule,
     ],
     controllers: [GenBotController],

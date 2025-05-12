@@ -1,7 +1,6 @@
-import {Body, Controller, Post, Req} from '@nestjs/common';
-import {GenBotService} from "./gen-bot.service";
-import {GenBotRequestDto} from "./dto/gen-bot.dto";
-import {FirebaseRequest} from "../../common/interfaces/firebase-request.interface";
+import { Body, Controller, Post } from '@nestjs/common';
+import { GenBotService } from './gen-bot.service';
+import { GenBotRequestDto } from './dto/gen-bot.dto';
 
 // @UseGuards(FirebaseAuthGuard)
 @Controller('gen-bot')
