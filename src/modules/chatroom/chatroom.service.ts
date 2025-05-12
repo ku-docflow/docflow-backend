@@ -1,6 +1,6 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+import {Between, Repository} from 'typeorm';
 import {Chatroom} from './chatroom.entity';
 import {Message} from './message.entity';
 import {ChatroomParticipant} from './chatroom-participant.entity';
@@ -89,15 +89,41 @@ export class ChatroomService {
             where: { id: chatroomId },
             relations: ['team', 'team.organization'],
         });
-
-        if (!chatroom?.team?.organization?.id) {
+        console.log(chatroom);
+        if (!chatroom) {
             throw new NotFoundException('Organization ID not found for this chatroom');
         }
 
         return chatroom.team.organization.id;
     }
 
-    getChatContextByStartAndEnd(){
-
+    async getMessagesBetweenIds(
+        chatroom_id: number,
+        first_msg_id: number,
+        last_msg_id: number
+    ): Promise<Message[]> {
+        const first = await this.messageRepo.findOne({
+            where: { id: first_msg_id, chatroom_id },
+            select: ['timestamp'],
+        });
+        const last = await this.messageRepo.findOne({
+            where: { id: last_msg_id, chatroom_id },
+            select: ['timestamp'],
+        });
+        if (!first || !last) {
+            return [];
+        }
+        const start = first.timestamp < last.timestamp ? first.timestamp : last.timestamp;
+        const end = first.timestamp > last.timestamp ? first.timestamp : last.timestamp;
+        return this.messageRepo.find({
+            where: {
+                chatroom_id,
+                timestamp: Between(start, end),
+            },
+            order: {
+                timestamp: 'DESC',
+            },
+        });
     }
+
 }

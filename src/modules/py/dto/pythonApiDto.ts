@@ -34,13 +34,13 @@ export interface ProcessDocumentRequest {
     chatContext: string;
     userId: string;
     createdBy: string;
-    createdAt: string;
+    createdAt: Date;
 }
 
 export type ProcessDocumentResponse = ApiResponse<{
     documentId: number;
     organizationId: number| null;
-    createdAt: string;
+    createdAt: Date;
     title: string;
     document: string;
     summary: string;

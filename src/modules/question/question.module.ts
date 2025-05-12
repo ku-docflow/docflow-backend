@@ -17,7 +17,7 @@ import {ChatroomParticipant} from "../chatroom/chatroom-participant.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Chatroom, Message, Document, Chatroom, ChatroomParticipant]),
+        TypeOrmModule.forFeature([Chatroom, Message, Document, ChatroomParticipant]),
         QdrantModule,
         forwardRef(() => ChatModule),
         AIModule,

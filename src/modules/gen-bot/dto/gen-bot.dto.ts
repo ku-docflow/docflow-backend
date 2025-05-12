@@ -12,6 +12,9 @@ export class GenBotRequestDto {
 
     @IsString()
     user_query: string;
+
+    @IsNumber()
+    topic_id: number;
 }
 export class GenBotResponseDto {
     @IsNumber()
