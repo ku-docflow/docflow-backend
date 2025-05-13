@@ -1,9 +1,6 @@
-import {Body, Controller, Post, Res, UseGuards} from '@nestjs/common';
-import {GenBotService} from "./gen-bot.service";
-import {FirebaseAuthGuard} from "../../common/guards/firebase-auth.guard";
-import {Response} from "express"
-import {successCode, SuccessData, successMessage} from "../../common/middleware/response.middleware";
-import {GenBotReqDto} from "./dto/gen-bot.req.dto";
+import { Body, Controller, Post } from '@nestjs/common';
+import { GenBotService } from './gen-bot.service';
+import { GenBotRequestDto } from './dto/gen-bot.dto';
 
 // @UseGuards(FirebaseAuthGuard)
 @Controller('gen-bot')
@@ -14,22 +11,11 @@ export class GenBotController {
 
     @Post()
     async createDocument(
-        @Body() query: GenBotReqDto,
-        @Res() res: Response
+        // @Req() req: FirebaseRequest,
+        @Body() query: GenBotRequestDto,
     ) {
         console.log(query);
-        const mock = {
-            documentId: 131231,
-            organizationId: 123,
-            createdAt: new Date(),
-            title: "NestJS 협업에 관한 내용",
-            document: "생성된 문서 원문",
-            summary: "생성된 문서 요약",
-            userId: 12,
-            createdBy: "김영수",
-            category: "DEV_DOC",
-        }
 
-        return mock
+        return this.genBotService.createDocByBot('userId', query)
     }
 }

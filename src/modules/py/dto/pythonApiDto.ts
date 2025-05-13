@@ -11,6 +11,15 @@ export interface Reference {
     content: string;
 }
 
+export interface SaveDocumentRequest{
+    documentId: number;
+    organizationId: number;
+    content: string
+    userId: string;
+    createdBy : string;
+    createdAt: Date;
+}
+
 export interface SearchDocumentRequest {
     references: Reference[] | string[]
     userQuery: string;
@@ -26,13 +35,13 @@ export interface ProcessDocumentRequest {
     chatContext: string;
     userId: string;
     createdBy: string;
-    createdAt: string;
+    createdAt: Date;
 }
 
 export type ProcessDocumentResponse = ApiResponse<{
     documentId: number;
     organizationId: number| null;
-    createdAt: string;
+    createdAt: Date;
     title: string;
     document: string;
     summary: string;

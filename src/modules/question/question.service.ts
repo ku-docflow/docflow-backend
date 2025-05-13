@@ -11,10 +11,11 @@ import {DocumentService} from "../document/document.service";
 import {Document} from "../document/document.entity";
 import {SearchBotApi} from "../py/api";
 import {SearchDocumentRequest, SearchDocumentResponse} from "../py/dto/pythonApiDto";
+import {ChatroomService} from "../chatroom/chatroom.service";
 
 @Injectable()
 export class QuestionService {
-    constructor(private readonly chatService: ChatService, private readonly AIService: AIService,
+    constructor(private readonly chatService: ChatService, private readonly AIService: AIService, private readonly chatRoomService: ChatroomService,
                 private readonly docService: DocumentService, private readonly questionRepository: QuestionRepository) {
     }
 
@@ -91,8 +92,8 @@ export class QuestionService {
         const chatList: Message[] = await this.chatService.getMessagesByRoomIdAndMinutes(chatroom_id, THIRTY_MINUTES_BEFORE)
         // chatroom으로 org id를 들고 와야 함 (보안 주의)
         // -> chatroom이 속한 org 조회  + 해당 org- userId 검사해서 소속된 userId인지 검사.
-        const OrgID = 1
-        // message 가공
+        // const OrgID = 1
+        const OrgID= await this.chatRoomService.getOrgIdByChatroomId(chatroom_id);// message 가공
         const chatStringWithSender: string = Message.formatMessagesWithLabels(chatList)
         // AI
         const question: string = await this.AIService.getQuestionByChatContextString(queryText, chatStringWithSender);
