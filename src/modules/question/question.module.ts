@@ -28,5 +28,4 @@ import { User } from '../user/user.entity';
     providers: [QuestionService, QuestionRepository, DocumentService, ChatroomService],
     exports: [QuestionService],
 })
-export class QuestionModule {
-}
+export class QuestionModule {}
