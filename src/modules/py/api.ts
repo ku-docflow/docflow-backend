@@ -47,6 +47,7 @@ export class GenerationBotApi {
             },
             body: JSON.stringify(data),
         });
+        console.log('response', response)
         return response.json();
     }
 }

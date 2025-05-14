@@ -15,10 +15,11 @@ import {EventsModule} from "../../common/events/events.module.";
 import {ChatroomService} from "../chatroom/chatroom.service";
 import {ChatroomParticipant} from "../chatroom/chatroom-participant.entity";
 import { User } from '../user/user.entity';
+import { Topic } from '../topic/topic.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Chatroom, Message, Document, ChatroomParticipant, User]),
+        TypeOrmModule.forFeature([Chatroom, Message, Document, ChatroomParticipant, User, Topic]),
         QdrantModule,
         forwardRef(() => ChatModule),
         AIModule,

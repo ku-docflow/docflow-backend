@@ -1,3 +1,5 @@
+import { Message } from '../../modules/chatroom/message.entity';
+
 export interface AppEventMap {
 	'user.data_dirty': {
 		userIds: string[];
@@ -7,4 +9,9 @@ export interface AppEventMap {
 		userId: string;
 		chatroomIds: number[];
 	};
+
+	'gen-bot.completed':{
+		chatroomId: number;
+		message: Message;
+	}
 }

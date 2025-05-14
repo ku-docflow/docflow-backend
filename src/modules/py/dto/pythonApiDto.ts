@@ -30,7 +30,7 @@ export type SearchDocumentResponse = ApiResponse<{
 
 export interface ProcessDocumentRequest {
 	documentId: number;
-	organizationId: number | null;
+	organizationId: number| null;
 	chatContext: string;
 	userId: string;
 	createdBy: string;
