@@ -40,12 +40,16 @@ export class QdrantService implements OnModuleInit {
     async getHybridSearch(params: QdrantSearchParams): Promise<QdrantQueryPointEntity> {
         const orgFilter = {
             must: [
-                {
-                    key: "organizationId",
-                    match: {value: params.organizationId},
-                },
+                ...(params.organizationId
+                    ? [
+                        {
+                            key: 'organizationId',
+                            match: { value: params.organizationId },
+                        },
+                    ]
+                    : []),
             ],
-        }
+        };
         const raw = await this.client.query("documents", {
             prefetch: [
                 {
