@@ -31,7 +31,6 @@ export class ChatGateway {
         payload: {
             chatroom_id: number;
             is_searchbot: boolean;
-            is_genbot: boolean;
             message: SendMessageDto;
         },
     ) {
@@ -45,14 +44,15 @@ export class ChatGateway {
                 shared_message_id: saved.shared_message_id ?? null,
                 shared_message_sender_id: saved.shared_message_sender_id ?? null,
             });
-
+            console.log(payload)
             if (payload.is_searchbot) {
                 const semanticQuery: SemanticSearchRequestDto = {
                     query: payload.message.text,
                     chatRoomId: payload.chatroom_id,
                 }
+                console.log(semanticQuery);
                 const results: SearchBotResponseDto = await this.questionService.getRagSearch(semanticQuery);
-
+                console.log('results',results);
                 this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
                     sender_id: '검색봇',
                     text: results.ragResponse,

@@ -22,10 +22,11 @@ export class QuestionService {
 
     // Rag
     async getRagSearch(query: SemanticSearchRequestDto): Promise<SearchBotResponseDto> {
+        console.log('Rag Search 수행')
         const queryPoint: QdrantQueryPointEntity = await this.queryMessageContext(query.chatRoomId, query.query)
         // const pointIds = queryPoint.extractIds
         const payloads: SearchBotReferenceDto[] = queryPoint.extractPayloadPairs
-
+        console.log('payloads', payloads)
         // 메인 DB 조회 :: Document 조회
         const docIds: number[] = payloads.map((payload) => payload.documentId)
         const documents: Document[] = await this.docService.getDocByIds(docIds)
@@ -35,6 +36,7 @@ export class QuestionService {
             references: documents.map((doc) => doc.text),
             userQuery: query.query
         }
+        console.log('ragReq',ragRequest)
         const pythonResponse: SearchDocumentResponse = await api.searchDocument(ragRequest)
         console.log('pythonResponse', pythonResponse)
         const mockPythonResponse = {
@@ -92,11 +94,12 @@ export class QuestionService {
         const chatList: Message[] = await this.chatService.getMessagesByRoomIdAndMinutes(chatroom_id, THIRTY_MINUTES_BEFORE)
         // chatroom으로 org id를 들고 와야 함 (보안 주의)
         // -> chatroom이 속한 org 조회  + 해당 org- userId 검사해서 소속된 userId인지 검사.
-        // const OrgID = 1
         const OrgID= await this.chatRoomService.getOrgIdByChatroomId(chatroom_id);// message 가공
         const chatStringWithSender: string = Message.formatMessagesWithLabels(chatList)
+        console.log('chat list', chatStringWithSender)
         // AI
         const question: string = await this.AIService.getQuestionByChatContextString(queryText, chatStringWithSender);
+        console.log('question', question)
         // embedding 생성
         const embedding: number[] = await this.AIService.createEmbedding(question);
         // 유사문서 검색 & rerank
