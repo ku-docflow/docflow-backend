@@ -10,8 +10,5 @@ export interface AppEventMap {
 		chatroomIds: number[];
 	};
 
-	'gen-bot.completed':{
-		chatroomId: number;
-		message: Message;
-	}
+	'gen-bot.completed': Message;
 }

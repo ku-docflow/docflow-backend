@@ -41,8 +41,8 @@ export class GenBotService {
 			createdBy: userId,
 			createdAt: now,
 		};
-		console.log(payload)
-		console.log({document: 12})
+		console.log(payload);
+		console.log({ document: 12 });
 		const api = new GenerationBotApi();
 		// 응답 후 DB 저장
 		const docForSave: ProcessDocumentResponse = await api.processDocument(payload);
@@ -61,10 +61,7 @@ export class GenBotService {
 		};
 		const ragMessage = await this.chatService.saveMessage(botMessage);
 		// Message 저장 및 socket 응답
-		this.eventManager.emit('gen-bot.completed', {
-			chatroomId: request.chatroom_id,
-			message: ragMessage,
-		});
+		this.eventManager.emit('gen-bot.completed', ragMessage);
 
 		return { documentId: savedDoc.id };
 	}

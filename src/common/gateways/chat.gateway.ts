@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { InternalServerErrorException, Logger } from '@nestjs/common';
 import {
 	ConnectedSocket,
 	MessageBody,
@@ -37,7 +37,7 @@ export class ChatGateway {
 		},
 	) {
 		try {
-			console.log(payload.message.sender_id)
+			console.log(payload.message.sender_id);
 			const fullMessage = { ...payload.message, chatroom_id: payload.chatroom_id };
 			const saved = await this.chatService.saveMessage(fullMessage);
 
@@ -62,8 +62,9 @@ export class ChatGateway {
 					type: payload.message.type, // 없으면 기본값 지정
 				};
 				console.log(botMessage);
-				const savedBotMessage = await this.chatService.saveMessage(botMessage).catch((e) => console.error(e));
-				console.log('savedBotMEssage', savedBotMessage);
+				const savedBotMessage = await this.chatService.saveMessage(botMessage).catch((e) => {
+					throw new InternalServerErrorException(`botMessage 저장에 실패했습니다 ${e}`);
+				});
 				this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
 					...savedBotMessage,
 					mentions: savedBotMessage?.mentions ?? [],
@@ -80,7 +81,6 @@ export class ChatGateway {
 
 	@OnEvent('gen-bot.completed')
 	handleGenBotCompleted(message: Message) {
-		console.log('gen-bot.comleted 실행됨 : ', message);
 		this.server.to(`room-${message.chatroom_id}`).emit('receive_message', {
 			...message,
 			mentions: message.mentions ?? [],

@@ -93,7 +93,7 @@ export class ChatroomService {
 			relations: ['team', 'team.organization'],
 		});
 		if (!chatroom) {
-			throw new NotFoundException('Organization ID not found for this chatroom');
+			throw new NotFoundException('chatroom ID not found for this chatroom');
 		}
 
 		const result = chatroom.team ? chatroom.team.organization.id : null;
