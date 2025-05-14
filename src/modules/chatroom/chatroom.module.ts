@@ -7,10 +7,11 @@ import { ChatroomService } from './chatroom.service';
 import { ChatroomController } from './chatroom.controller';
 import { Team } from '../team/team.entity';
 import { EventsModule } from 'src/common/events/events.module.';
+import { Topic } from '../topic/topic.entity';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Chatroom, Message, ChatroomParticipant, Team]),
+		TypeOrmModule.forFeature([Chatroom, Message, ChatroomParticipant, Team, Topic]),
 		EventsModule
 	],
 	controllers: [ChatroomController],

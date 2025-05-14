@@ -5,6 +5,7 @@ import { Chatroom } from './chatroom.entity';
 import { Message } from './message.entity';
 import { ChatroomParticipant } from './chatroom-participant.entity';
 import { EventManager } from 'src/common/events/event-manager';
+import { Topic } from '../topic/topic.entity';
 
 @Injectable()
 export class ChatroomService {
@@ -15,6 +16,8 @@ export class ChatroomService {
 		private messageRepo: Repository<Message>,
 		@InjectRepository(ChatroomParticipant)
 		private participantRepo: Repository<ChatroomParticipant>,
+		@InjectRepository(Topic)
+		private topicRepo: Repository<Topic>,
 		private readonly eventManager: EventManager,
 	) {
 	}
@@ -89,13 +92,25 @@ export class ChatroomService {
 			where: { id: chatroomId },
 			relations: ['team', 'team.organization'],
 		});
-		console.log('getOrgId', chatroom);
 		if (!chatroom) {
 			throw new NotFoundException('Organization ID not found for this chatroom');
 		}
 
 		const result = chatroom.team ? chatroom.team.organization.id : null;
 		return result;
+	}
+
+	async getOrgIdByTopicId(topicId: number): Promise<number> {
+		const topic = await this.topicRepo.findOne({
+			where: {
+				id: topicId,
+			},
+		});
+		if(!topic){
+			throw new NotFoundException(`Topic Not Found ${topicId}`)
+		}
+		return topic.organization_id;
+
 	}
 
 	async getMessagesBetweenIds(
