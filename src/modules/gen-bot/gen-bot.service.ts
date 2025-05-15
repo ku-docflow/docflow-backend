@@ -21,7 +21,7 @@ export class GenBotService {
 		const { chatroom_id, first_msg_id, last_msg_id, user_query, topic_id } = request;
 
 		// 1. 조직 ID 확인
-		const orgId: number | null = await this.chatRoomService.getOrgIdByChatroomId(chatroom_id);
+		const orgId: number | null = await this.chatRoomService.getOrgIdByTopicId(topic_id);
 		// chat context 조회
 		const messages: Message[] = await this.chatRoomService.getMessagesBetweenIds(chatroom_id, first_msg_id, last_msg_id);
 		// 가공
