@@ -17,7 +17,16 @@ export class ChatService {
 
 	async saveMessage(message: SendMessageDto & { chatroom_id: number }) {
 		const savedMessage = this.messageRepo.create(message);
-		return this.messageRepo.save(savedMessage);
+		const saved = await this.messageRepo.save(savedMessage);
+		const result = await this.messageRepo.findOne({
+			where: { id: saved.id },
+			relations: ['sender'],
+		});
+		if (!result) {
+			throw new NotFoundException('저장된 메세지 조회에 실패');
+		}
+		return result;
+
 	}
 
 	async getMessages(chatroom_id: number) {

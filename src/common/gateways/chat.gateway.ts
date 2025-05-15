@@ -40,7 +40,7 @@ export class ChatGateway {
 			console.log(payload.message.sender_id);
 			const fullMessage = { ...payload.message, chatroom_id: payload.chatroom_id };
 			const saved = await this.chatService.saveMessage(fullMessage);
-
+			console.log(saved)
 			this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
 				...saved,
 				mentions: saved?.mentions ?? [],
@@ -61,10 +61,11 @@ export class ChatGateway {
 					mentions: [],
 					type: payload.message.type, // 없으면 기본값 지정
 				};
-				console.log(botMessage);
 				const savedBotMessage = await this.chatService.saveMessage(botMessage).catch((e) => {
 					throw new InternalServerErrorException(`botMessage 저장에 실패했습니다 ${e}`);
 				});
+				console.log(savedBotMessage);
+
 				this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
 					...savedBotMessage,
 					mentions: savedBotMessage?.mentions ?? [],
