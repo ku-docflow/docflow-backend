@@ -57,7 +57,7 @@ export class QdrantQueryPointEntity {
 
             //Payload를 정의해야함.
             return Object.assign(new SearchBotReferenceDto(), {
-                documentId: payload['documentId'] as string,
+                documentId: point.id,
                 title: payload['title'] as string,
                 summary: payload['summary'] as string,
                 createdBy: payload['createdBy'] as string,

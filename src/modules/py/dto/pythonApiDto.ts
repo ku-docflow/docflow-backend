@@ -12,11 +12,11 @@ export interface Reference {
 
 export interface SaveDocumentRequest {
 	documentId: number;
-	organizationId: number;
+	organizationId?: number;
 	content: string;
-	userId: string;
-	createdBy: string;
-	createdAt: Date;
+	userId?: string;
+	createdBy?: string;
+	createdAt?: Date;
 }
 
 export interface SearchDocumentRequest {

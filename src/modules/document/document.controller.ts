@@ -42,7 +42,7 @@ export class DocumentController {
 
 	@Patch(':id')
 	update(@Param('id') id: string, @Body() body: { text: string }) {
-		return this.documentService.updateDocument(Number(id), body.text);
+		return this.documentService.updateDocumentWithVector(Number(id), body.text);
 	}
 
 	@Delete(':id')
