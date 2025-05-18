@@ -112,6 +112,35 @@ export class DocumentService {
 
 		return saved;
 	}
+	async updateDocumentWithVector(id: number, text: string): Promise<Document> {
+		const doc = await this.documentRepo.findOne({
+			where: { id },
+			relations: ['topic'],
+		});
+		if (!doc) throw new NotFoundException('Document not found');
+
+		doc.text = text;
+		const saved = await this.documentRepo.save(doc);
+
+		const members = await this.documentRepo.manager
+			.getRepository(Membership)
+			.find({ where: { organization_id: doc.topic.organization_id }, select: ['user_id'] });
+
+		const userIds = members.map((m) => m.user_id);
+		if (userIds.length > 0) {
+			this.eventManager.emit('user.data_dirty', { userIds });
+		}
+		const documentRequest: SaveDocumentRequest = {
+			documentId: saved.id,
+			content: saved.text,
+		};
+		const api = new DocApi();
+		api.saveDocument(documentRequest).catch((error) => {
+			throw new InternalServerErrorException(`문서 벡터화에 실패 ${error}`);
+		});
+
+		return saved;
+	}
 
 	async deleteDocument(id: number): Promise<void> {
 		const doc = await this.documentRepo.findOne({
