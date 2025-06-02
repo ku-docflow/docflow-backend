@@ -4,8 +4,8 @@ import { Between, Repository } from 'typeorm';
 import { Chatroom } from './chatroom.entity';
 import { Message } from './message.entity';
 import { ChatroomParticipant } from './chatroom-participant.entity';
-import { EventManager } from 'src/common/events/event-manager';
 import { Topic } from '../topic/topic.entity';
+import { EventManager } from "../../common/events/event-manager";
 
 @Injectable()
 export class ChatroomService {
@@ -106,7 +106,7 @@ export class ChatroomService {
 				id: topicId,
 			},
 		});
-		if(!topic){
+		if (!topic) {
 			throw new NotFoundException(`Topic Not Found ${topicId}`)
 		}
 		return topic.organization_id;

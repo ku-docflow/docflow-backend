@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Document } from './document.entity';
-import { EventManager } from 'src/common/events/event-manager';
+import { EventManager } from "../../common/events/event-manager"
 import { Membership } from '../team/membership.entity';
 import { Topic } from '../topic/topic.entity';
 import { SaveDocumentRequest } from '../py/dto/pythonApiDto';

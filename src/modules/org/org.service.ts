@@ -12,7 +12,7 @@ import { Team } from '../team/team.entity';
 import { Membership } from '../team/membership.entity';
 import { Chatroom } from '../chatroom/chatroom.entity';
 import { ChatroomParticipant } from '../chatroom/chatroom-participant.entity';
-import { EventManager } from 'src/common/events/event-manager';
+import { EventManager } from "../../common/events/event-manager"
 
 @Injectable()
 export class OrgService {
