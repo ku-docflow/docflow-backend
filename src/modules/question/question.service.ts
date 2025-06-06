@@ -16,7 +16,7 @@ import { ChatroomService } from '../chatroom/chatroom.service';
 @Injectable()
 export class QuestionService {
 	constructor(private readonly chatService: ChatService, private readonly AIService: AIService, private readonly chatRoomService: ChatroomService,
-				private readonly docService: DocumentService, private readonly questionRepository: QuestionRepository) {
+		private readonly docService: DocumentService, private readonly questionRepository: QuestionRepository) {
 	}
 
 

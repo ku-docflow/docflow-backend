@@ -55,6 +55,9 @@ export class Message {
 	shared_message?: Message;
 
 	@Column({ nullable: true })
+	shared_message_text?: string;
+
+	@Column({ nullable: true })
 	shared_message_sender_id?: string;
 
 	@ManyToOne(() => User, { onDelete: 'SET NULL' })

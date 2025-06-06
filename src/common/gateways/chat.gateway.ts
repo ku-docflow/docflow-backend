@@ -46,6 +46,7 @@ export class ChatGateway {
 				mentions: saved?.mentions ?? [],
 				shared_message_id: saved?.shared_message_id ?? null,
 				shared_message_sender_id: saved?.shared_message_sender_id ?? null,
+				shared_message_text: saved?.shared_message_text ?? null,
 			});
 			if (payload.is_searchbot) {
 				const semanticQuery: SemanticSearchRequestDto = {
@@ -71,6 +72,7 @@ export class ChatGateway {
 					mentions: savedBotMessage?.mentions ?? [],
 					shared_message_id: savedBotMessage?.shared_message_id ?? null,
 					shared_message_sender_id: savedBotMessage?.shared_message_sender_id ?? null,
+					shared_message_text: savedBotMessage?.shared_message_text ?? null,
 				});
 			}
 		} catch (err) {
@@ -87,6 +89,7 @@ export class ChatGateway {
 			mentions: message.mentions ?? [],
 			shared_message_id: message.shared_message_id ?? null,
 			shared_message_sender_id: message.shared_message_sender_id ?? null,
+			shared_message_text: message.shared_message_text ?? null,
 		});
 	}
 
