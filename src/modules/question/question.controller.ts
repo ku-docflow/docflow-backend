@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Logger } from '@nestjs/common';
 import { SemanticSearchRequestDto } from "./dto/question.req.dto";
 import { QuestionService } from "./question.service";
 import { SearchBotReferenceDto, SearchBotResponseDto } from "./dto/question.res.dto";
@@ -6,6 +6,8 @@ import { SearchBotReferenceDto, SearchBotResponseDto } from "./dto/question.res.
 // @UseGuards(FirebaseAuthGuard)
 @Controller('question')
 export class QuestionController {
+	private readonly logger = new Logger(QuestionController.name);
+
 	constructor(private readonly questionService: QuestionService) {
 	}
 
@@ -17,10 +19,9 @@ export class QuestionController {
 		@Body() query: SemanticSearchRequestDto,
 		// @Res() res: Response,
 	) {
-		console.log(query);
+		this.logger.log(`Semantic search request - chatroom: ${query.chatRoomId}, query: "${query.query}"`);
 		const searchResult: SearchBotReferenceDto[] = await this.questionService.getSearch(query);
 		return searchResult;
-
 	}
 
 
@@ -28,8 +29,8 @@ export class QuestionController {
 	async getRagSearchBot(
 		@Body() query: SemanticSearchRequestDto,
 	) {
-		console.log(query);
-		const ragResult: SearchBotResponseDto = await this.questionService.getRagSearch(query)
+		this.logger.log(`RAG search request - chatroom: ${query.chatRoomId}, query: "${query.query}"`);
+		const ragResult: SearchBotResponseDto = await this.questionService.getRagSearch(query);
 		return ragResult;
 	}
 

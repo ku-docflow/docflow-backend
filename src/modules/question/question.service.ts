@@ -1,4 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { 
+	Injectable, 
+	Logger, 
+	BadRequestException, 
+	NotFoundException, 
+	ForbiddenException, 
+	ServiceUnavailableException,
+	InternalServerErrorException 
+} from '@nestjs/common';
 import { ChatService } from '../chat/chat.service';
 import { Message } from '../chatroom/message.entity';
 import { AIService } from '../AI/AI.service';
@@ -15,21 +23,42 @@ import { ChatroomService } from '../chatroom/chatroom.service';
 
 @Injectable()
 export class QuestionService {
+	private readonly logger = new Logger(QuestionService.name);
+
 	constructor(private readonly chatService: ChatService, private readonly AIService: AIService, private readonly chatRoomService: ChatroomService,
-		private readonly docService: DocumentService, private readonly questionRepository: QuestionRepository) {
+				private readonly docService: DocumentService, private readonly questionRepository: QuestionRepository) {
 	}
 
 
 	// Rag
 	async getRagSearch(query: SemanticSearchRequestDto): Promise<SearchBotResponseDto> {
-		console.log('Rag Search 수행');
-		const queryPoint: QdrantQueryPointEntity = await this.queryMessageContext(query.chatRoomId, query.query);
-		// const pointIds = queryPoint.extractIds
-		const payloads: SearchBotReferenceDto[] = queryPoint.extractPayloadPairs;
-		console.log('payloads', payloads);
+		if (!query.query?.trim()) {
+			throw new BadRequestException('Query is required and cannot be empty');
+		}
+
+		if (!query.chatRoomId || query.chatRoomId <= 0) {
+			throw new BadRequestException('Valid chatroom ID is required');
+		}
+
+		this.logger.log('Rag Search 수행');
+		const payloads: SearchBotReferenceDto[] = await this.queryMessageContext(query.chatRoomId, query.query);
+		this.logger.log(`Found ${payloads.length} document references`);
+
+		if (payloads.length === 0) {
+			return {
+				ragResponse: 'No relevant documents found for your query.',
+				references: []
+			};
+		}
+
 		// 메인 DB 조회 :: Document 조회
 		const docIds: number[] = payloads.map((payload) => payload.documentId);
 		const documents: Document[] = await this.docService.getDocByIds(docIds);
+		
+		if (documents.length === 0) {
+			throw new NotFoundException('Referenced documents not found');
+		}
+
 		// 파이썬 서버 호출
 		const api = new SearchBotApi();
 		const ragRequest: SearchDocumentRequest = {
@@ -38,47 +67,80 @@ export class QuestionService {
 			}),
 			userQuery: query.query,
 		};
-		console.log('ragReq', ragRequest);
-		const pythonResponse: SearchDocumentResponse = await api.searchDocument(ragRequest);
-		console.log('pythonResponse', pythonResponse);
 
-		const response: SearchBotResponseDto = { ragResponse: pythonResponse.data?.ragResponse, references: payloads };
+		const pythonResponse: SearchDocumentResponse = await api.searchDocument(ragRequest);
+		
+		if (!pythonResponse.data?.ragResponse) {
+			throw new ServiceUnavailableException('Failed to generate AI response');
+		}
+
+		const response: SearchBotResponseDto = { 
+			ragResponse: pythonResponse.data.ragResponse, 
+			references: payloads 
+		};
 
 		return response;
-
 	}
 
 	// Search
 	async getSearch(query: SemanticSearchRequestDto): Promise<SearchBotReferenceDto[]> {
-		const queryPoint: QdrantQueryPointEntity = await this.queryMessageContext(query.chatRoomId, query.query);
-		console.log(queryPoint);
-		return queryPoint.extractPayloadPairs;
+		if (!query.query?.trim()) {
+			throw new BadRequestException('Query is required and cannot be empty');
+		}
+
+		if (!query.chatRoomId || query.chatRoomId <= 0) {
+			throw new BadRequestException('Valid chatroom ID is required');
+		}
+
+		const payloads: SearchBotReferenceDto[] = await this.queryMessageContext(query.chatRoomId, query.query);
+		this.logger.log(`Search completed with ${payloads.length} results`);
+		return payloads;
 	}
 
+
 	// 최상위 모듈 일단 만
-	private async queryMessageContext(chatroom_id: number, queryText: string): Promise<QdrantQueryPointEntity> {
+	private async queryMessageContext(chatroom_id: number, queryText: string): Promise<SearchBotReferenceDto[]> {
 		const THIRTY_MINUTES_BEFORE = 30;
+		
 		const chatList: Message[] = await this.chatService.getMessagesByRoomIdAndMinutes(chatroom_id, THIRTY_MINUTES_BEFORE);
+		
 		// chatroom으로 org id를 들고 와야 함 (보안 주의)
-		// -> chatroom이 속한 org 조회  + 해당 org- userId 검사해서 소속된 userId인지 검사.
-		const OrgID = await this.chatRoomService.getOrgIdByChatroomId(chatroom_id);// message 가공
+		const OrgID = await this.chatRoomService.getOrgIdByChatroomId(chatroom_id);
+		
+		if (!OrgID) {
+			throw new ForbiddenException('Chatroom not found or access denied');
+		}
+
+		// message 가공
 		const chatStringWithSender: string = Message.formatMessagesWithLabels(chatList);
-		console.log('chat list', chatStringWithSender);
+		this.logger.debug(`Chat context: ${chatStringWithSender.substring(0, 100)}...`);
+		
 		// AI
 		const question: string = await this.AIService.getQuestionByChatContextString(queryText, chatStringWithSender);
-		console.log('question', question);
+		
+		if (!question?.trim()) {
+			throw new ServiceUnavailableException('Failed to process query with AI service');
+		}
+		
+		this.logger.debug(`Refined question: ${question}`);
+		
 		// embedding 생성
 		const embedding: number[] = await this.AIService.createEmbedding(question);
+		
+		if (!embedding || embedding.length === 0) {
+			throw new ServiceUnavailableException('Failed to generate embedding');
+		}
+		
 		// 유사문서 검색 & rerank
 		const query: QdrantSearchParams = {
 			organizationId: OrgID,
 			denseVector: embedding,
 			queryText: question,
 		};
-		console.log('Qdrant Query', query);
+		
 		const points: QdrantQueryPointEntity = await this.questionRepository.getDocsByHybridSearchAndOrgId(query);
 
-		return points;
+		return points.extractPayloadPairs;
 	}
 }
 
