@@ -16,16 +16,15 @@ import { ChatroomService } from '../chatroom/chatroom.service';
 @Injectable()
 export class QuestionService {
 	constructor(private readonly chatService: ChatService, private readonly AIService: AIService, private readonly chatRoomService: ChatroomService,
-		private readonly docService: DocumentService, private readonly questionRepository: QuestionRepository) {
+				private readonly docService: DocumentService, private readonly questionRepository: QuestionRepository) {
 	}
 
 
 	// Rag
 	async getRagSearch(query: SemanticSearchRequestDto): Promise<SearchBotResponseDto> {
 		console.log('Rag Search 수행');
-		const queryPoint: QdrantQueryPointEntity = await this.queryMessageContext(query.chatRoomId, query.query);
+		const payloads: SearchBotReferenceDto[] = await this.queryMessageContext(query.chatRoomId, query.query);
 		// const pointIds = queryPoint.extractIds
-		const payloads: SearchBotReferenceDto[] = queryPoint.extractPayloadPairs;
 		console.log('payloads', payloads);
 		// 메인 DB 조회 :: Document 조회
 		const docIds: number[] = payloads.map((payload) => payload.documentId);
@@ -50,13 +49,14 @@ export class QuestionService {
 
 	// Search
 	async getSearch(query: SemanticSearchRequestDto): Promise<SearchBotReferenceDto[]> {
-		const queryPoint: QdrantQueryPointEntity = await this.queryMessageContext(query.chatRoomId, query.query);
-		console.log(queryPoint);
-		return queryPoint.extractPayloadPairs;
+		const payloads: SearchBotReferenceDto[] = await this.queryMessageContext(query.chatRoomId, query.query);
+		console.log(payloads);
+		return payloads;
 	}
 
+
 	// 최상위 모듈 일단 만
-	private async queryMessageContext(chatroom_id: number, queryText: string): Promise<QdrantQueryPointEntity> {
+	private async queryMessageContext(chatroom_id: number, queryText: string): Promise<SearchBotReferenceDto[]> {
 		const THIRTY_MINUTES_BEFORE = 30;
 		const chatList: Message[] = await this.chatService.getMessagesByRoomIdAndMinutes(chatroom_id, THIRTY_MINUTES_BEFORE);
 		// chatroom으로 org id를 들고 와야 함 (보안 주의)
@@ -78,7 +78,7 @@ export class QuestionService {
 		console.log('Qdrant Query', query);
 		const points: QdrantQueryPointEntity = await this.questionRepository.getDocsByHybridSearchAndOrgId(query);
 
-		return points;
+		return points.extractPayloadPairs;
 	}
 }
 

@@ -5,6 +5,7 @@ export class SearchBotReferenceDto {
 	createdBy: string;
 	createdAt: Date;
 	category?: 'DEV_DOC' | 'MEETING_DOC';
+	keywords?: string[];
 }
 
 

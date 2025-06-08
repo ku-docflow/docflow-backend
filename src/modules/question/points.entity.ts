@@ -63,7 +63,9 @@ export class QdrantQueryPointEntity {
                 createdBy: payload['createdBy'] as string,
                 createdAt: payload['createdAt'] as string,
                 category: payload['category'] as 'DEV_DOC' | 'MEETING_DOC' | undefined,
+                keywords: payload['keywords'] as string[],
             });
         });
     }
+
 }
