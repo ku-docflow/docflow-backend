@@ -40,20 +40,19 @@ export class ChatGateway {
 			console.log(payload.message.sender_id);
 			const fullMessage = { ...payload.message, chatroom_id: payload.chatroom_id };
 			const saved = await this.chatService.saveMessage(fullMessage);
-			console.log(saved)
+
 			this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
 				...saved,
 				mentions: saved?.mentions ?? [],
 				shared_message_id: saved?.shared_message_id ?? null,
 				shared_message_text: saved?.shared_message_text ?? null,
-				shared_message_sender: saved?.shared_message_sender
-					? {
-						id: saved?.shared_message_sender.id,
-						first_name: saved?.shared_message_sender.first_name,
-						last_name: saved?.shared_message_sender.last_name,
-						profile_image: '',
-					}
-					: null,
+				shared_message_sender: {
+					id: saved?.sender.id,
+					first_name: saved?.sender.first_name,
+					last_name: saved?.sender.last_name,
+					profile_image: '',
+				}
+				,
 			});
 			if (payload.is_searchbot) {
 				const semanticQuery: SemanticSearchRequestDto = {
@@ -61,7 +60,6 @@ export class ChatGateway {
 					chatRoomId: payload.chatroom_id,
 				};
 				const results: SearchBotResponseDto = await this.questionService.getRagSearch(semanticQuery);
-				console.log('검색봇 응답', results);
 				const botMessage: SendMessageDto & { chatroom_id: number } = {
 					sender_id: 'search-bot',
 					chatroom_id: payload.chatroom_id,
@@ -72,21 +70,20 @@ export class ChatGateway {
 				const savedBotMessage = await this.chatService.saveMessage(botMessage).catch((e) => {
 					throw new InternalServerErrorException(`botMessage 저장에 실패했습니다 ${e}`);
 				});
-				console.log(savedBotMessage);
+				console.log(41414, savedBotMessage);
 
 				this.server.to(`room-${payload.chatroom_id}`).emit('receive_message', {
 					...savedBotMessage,
 					mentions: savedBotMessage?.mentions ?? [],
 					shared_message_id: savedBotMessage?.shared_message_id ?? null,
 					shared_message_text: savedBotMessage?.shared_message_text ?? null,
-					shared_message_sender: savedBotMessage?.shared_message_sender
-						? {
-							id: savedBotMessage?.shared_message_sender.id,
-							first_name: savedBotMessage?.shared_message_sender.first_name,
-							last_name: savedBotMessage?.shared_message_sender.last_name,
-							profile_image: '',
-						}
-						: null,
+					shared_message_sender:
+					{
+						id: savedBotMessage?.sender.id,
+						first_name: savedBotMessage?.sender.first_name,
+						last_name: savedBotMessage?.sender.last_name,
+						profile_image: '',
+					},
 				});
 			}
 		} catch (err) {
@@ -103,14 +100,13 @@ export class ChatGateway {
 			mentions: message.mentions ?? [],
 			shared_message_id: message.shared_message_id ?? null,
 			shared_message_text: message.shared_message_text ?? null,
-			shared_message_sender: message?.shared_message_sender
-				? {
-					id: message?.shared_message_sender.id,
-					first_name: message?.shared_message_sender.first_name,
-					last_name: message?.shared_message_sender.last_name,
-					profile_image: '',
-				}
-				: null,
+			shared_message_sender:
+			{
+				id: message?.sender.id,
+				first_name: message?.sender.first_name,
+				last_name: message?.sender.last_name,
+				profile_image: '',
+			},
 		});
 	}
 

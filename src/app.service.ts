@@ -20,7 +20,7 @@ export class AppService implements OnModuleInit {
 	private async ensureBotUsersExist() {
 		const botUsers = [
 			{ id: 'gen-bot', last_name: '생성봇', },
-			{ id: 'search-bot',last_name: '검색봇', },
+			{ id: 'search-bot', last_name: '검색봇', },
 		];
 
 		for (const bot of botUsers) {

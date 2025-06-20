@@ -19,10 +19,6 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { TopicModule } from './modules/topic/topic.module';
 import { GenBotModule } from './modules/gen-bot/gen-bot.module';
 import { AppService } from './app.service';
-import { Chatroom } from './modules/chatroom/chatroom.entity';
-import { Message } from './modules/chatroom/message.entity';
-import { Document } from './modules/document/document.entity';
-import { ChatroomParticipant } from './modules/chatroom/chatroom-participant.entity';
 import { User } from './modules/user/user.entity';
 
 dotenv.config();
