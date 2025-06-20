@@ -29,7 +29,14 @@ export class QuestionController {
 	async getRagSearchBot(
 		@Body() query: SemanticSearchRequestDto,
 	) {
+		this.logger.log(`RAG search request received:`, query);
 		this.logger.log(`RAG search request - chatroom: ${query.chatRoomId}, query: "${query.query}"`);
+		
+		if (!query.chatRoomId) {
+			this.logger.error('chatRoomId is missing in the request');
+			throw new Error('chatRoomId is required');
+		}
+		
 		const ragResult: SearchBotResponseDto = await this.questionService.getRagSearch(query);
 		return ragResult;
 	}
