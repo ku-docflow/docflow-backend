@@ -52,6 +52,7 @@ export class ChatService {
 				},
 				mentions: msg.mentions ?? [],
 				shared_message_id: msg.shared_message_id?.toString() ?? null,
+				shared_message_text: msg.shared_message_text?.toString() ?? null,
 				shared_message_sender: msg.shared_message_sender
 					? {
 						id: msg.shared_message_sender.id,

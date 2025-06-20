@@ -23,14 +23,22 @@ export class AuthService {
 		}
 
 		if (!user.search_bot_chatroom_id) {
-			const chatroom = this.chatroomRepo.create({
-				type: 'bot',
-				name: `검색봇 채팅방`,
+			const existingBotChatroom = await this.chatroomRepo.findOneBy({
 				bot_user_id: user.id,
 			});
-			const savedChatroom = await this.chatroomRepo.save(chatroom);
 
-			user.search_bot_chatroom_id = savedChatroom.id;
+			if (existingBotChatroom) {
+				user.search_bot_chatroom_id = existingBotChatroom.id;
+			} else {
+				const chatroom = this.chatroomRepo.create({
+					type: 'bot',
+					name: `검색봇 채팅방`,
+					bot_user_id: user.id,
+				});
+				const savedChatroom = await this.chatroomRepo.save(chatroom);
+				user.search_bot_chatroom_id = savedChatroom.id;
+			}
+
 			await this.userRepo.save(user);
 		}
 
