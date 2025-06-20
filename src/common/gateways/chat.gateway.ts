@@ -10,7 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/modules/chat/chat.service';
 import { SendMessageDto } from 'src/modules/chatroom/dto/send_message.dto';
-import { SearchBotReferenceDto, SearchBotResponseDto } from 'src/modules/question/dto/question.res.dto';
+import { SearchBotResponseDto } from 'src/modules/question/dto/question.res.dto';
 import { QuestionService } from 'src/modules/question/question.service';
 import { QueryFailedError } from 'typeorm';
 import { SemanticSearchRequestDto } from '../../modules/question/dto/question.req.dto';
@@ -45,8 +45,15 @@ export class ChatGateway {
 				...saved,
 				mentions: saved?.mentions ?? [],
 				shared_message_id: saved?.shared_message_id ?? null,
-				shared_message_sender_id: saved?.shared_message_sender_id ?? null,
 				shared_message_text: saved?.shared_message_text ?? null,
+				shared_message_sender: saved?.shared_message_sender
+					? {
+						id: saved?.shared_message_sender.id,
+						first_name: saved?.shared_message_sender.first_name,
+						last_name: saved?.shared_message_sender.last_name,
+						profile_image: '',
+					}
+					: null,
 			});
 			if (payload.is_searchbot) {
 				const semanticQuery: SemanticSearchRequestDto = {
@@ -71,8 +78,15 @@ export class ChatGateway {
 					...savedBotMessage,
 					mentions: savedBotMessage?.mentions ?? [],
 					shared_message_id: savedBotMessage?.shared_message_id ?? null,
-					shared_message_sender_id: savedBotMessage?.shared_message_sender_id ?? null,
 					shared_message_text: savedBotMessage?.shared_message_text ?? null,
+					shared_message_sender: savedBotMessage?.shared_message_sender
+						? {
+							id: savedBotMessage?.shared_message_sender.id,
+							first_name: savedBotMessage?.shared_message_sender.first_name,
+							last_name: savedBotMessage?.shared_message_sender.last_name,
+							profile_image: '',
+						}
+						: null,
 				});
 			}
 		} catch (err) {
@@ -88,8 +102,15 @@ export class ChatGateway {
 			...message,
 			mentions: message.mentions ?? [],
 			shared_message_id: message.shared_message_id ?? null,
-			shared_message_sender_id: message.shared_message_sender_id ?? null,
 			shared_message_text: message.shared_message_text ?? null,
+			shared_message_sender: message?.shared_message_sender
+				? {
+					id: message?.shared_message_sender.id,
+					first_name: message?.shared_message_sender.first_name,
+					last_name: message?.shared_message_sender.last_name,
+					profile_image: '',
+				}
+				: null,
 		});
 	}
 
