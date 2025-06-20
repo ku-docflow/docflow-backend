@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Logger } from '@nestjs/common';
-import { SemanticSearchRequestDto } from "./dto/question.req.dto";
-import { QuestionService } from "./question.service";
-import { SearchBotReferenceDto, SearchBotResponseDto } from "./dto/question.res.dto";
+import { Body, Controller, Post, Logger, UseGuards } from '@nestjs/common';
+import { SemanticSearchRequestDto } from './dto/question.req.dto';
+import { QuestionService } from './question.service';
+import { SearchBotReferenceDto, SearchBotResponseDto } from './dto/question.res.dto';
+import { FirebaseAuthGuard } from 'src/common/guards/firebase-auth.guard';
 
-// @UseGuards(FirebaseAuthGuard)
+@UseGuards(FirebaseAuthGuard)
 @Controller('question')
 export class QuestionController {
 	private readonly logger = new Logger(QuestionController.name);
