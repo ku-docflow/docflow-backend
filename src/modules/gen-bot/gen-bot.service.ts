@@ -36,7 +36,7 @@ export class GenBotService {
 		const payload: ProcessDocumentRequest = {
 			documentId: Number(doc.id),
 			organizationId: orgId,
-			chatContext: finalQuery,
+			chatContext: `**사용자 쿼리** ${finalQuery} , **채팅 내용** ${chatContext}`,
 			userId,
 			createdBy: userId,
 			createdAt: now,
